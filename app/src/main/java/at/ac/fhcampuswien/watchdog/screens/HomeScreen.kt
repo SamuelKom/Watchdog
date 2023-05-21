@@ -5,23 +5,26 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
+import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import at.ac.fhcampuswien.watchdog.api.fetchPopularMovies
 import at.ac.fhcampuswien.watchdog.models.Movie
+import at.ac.fhcampuswien.watchdog.navigation.Navigation
 import at.ac.fhcampuswien.watchdog.viewmodels.HomeViewModel
 import coil.compose.AsyncImage
 
 @Composable
 fun HomeScreen(
-    navController: NavController = rememberNavController(),
     homeViewModel: HomeViewModel = viewModel()
 ){
     fetchPopularMovies(
@@ -29,12 +32,23 @@ fun HomeScreen(
         homeViewModel = homeViewModel
     )
 
-    LazyMovieGrid(homeViewModel = homeViewModel)
+    val navController = rememberNavController()
+
+    Scaffold(
+        bottomBar = { BottomBar(navController = navController) }
+    ) {padding ->
+        LazyMovieGrid(homeViewModel = homeViewModel, padding = padding)
+        Navigation(navController = navController, homeViewModel = homeViewModel)
+
+    }
+
+
+
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun LazyMovieGrid(homeViewModel: HomeViewModel) {
+fun LazyMovieGrid(homeViewModel: HomeViewModel, padding: PaddingValues) {
     val movieList = homeViewModel.movieList//.collectAsState();
     //val coroutineScope = rememberCoroutineScope()
 
@@ -50,7 +64,9 @@ fun LazyMovieGrid(homeViewModel: HomeViewModel) {
             }
             //}
         },
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(padding)
     )
 }
 
@@ -65,4 +81,35 @@ fun MovieImage(movie: Movie){
             .wrapContentHeight()
     )
     println(movie.poster)
+}
+
+@Composable
+fun BottomBar(navController: NavHostController) {
+    val screens = listOf(
+        Screen.Home
+    )
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentDestination = navBackStackEntry?.destination
+
+    BottomNavigation {
+        screens.forEach {screen ->
+            AddItem(screen = screen, currentDestination = currentDestination, navController = navController)
+        }
+    }
+}
+
+@Composable
+fun RowScope.AddItem(
+    screen: Screen,
+    currentDestination: NavDestination?,
+    navController: NavHostController
+) {
+    BottomNavigationItem(
+        label = { Text(text = screen.title) },
+        icon = { Icon(imageVector = screen.icon, contentDescription = "Navigation Icon") },
+        selected = currentDestination?.hierarchy?.any{
+            it.route == screen.route
+        } == true,
+        onClick = { navController.navigate(screen.route) }
+    )
 }
