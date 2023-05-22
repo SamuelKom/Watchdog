@@ -22,16 +22,6 @@ sealed class Screen (
         icon = Icons.Default.Favorite
     )
 
-    object Detail : Screen(
-        route = "detail/{id}",
-        title = "Detail",
-        icon = Icons.Default.ArrowBack
-    ) {
-        fun withId(id: String): String {
-            return this.route.replace(oldValue = "{id}", newValue = id)
-        }
-    }
-
     object Add : Screen(
         route = "add",
         title = "Add",
