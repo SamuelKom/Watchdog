@@ -9,7 +9,7 @@ import at.ac.fhcampuswien.watchdog.screens.Screen
 import at.ac.fhcampuswien.watchdog.viewmodels.HomeViewModel
 
 @Composable
-fun Navigation(navController: NavHostController, homeViewModel: HomeViewModel) {
+fun BottomNavGraph(navController: NavHostController, homeViewModel: HomeViewModel) {
 
     //val homeFactory = HomeScreenViewModelFactory(repository)
 

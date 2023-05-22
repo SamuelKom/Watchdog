@@ -11,26 +11,25 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import at.ac.fhcampuswien.watchdog.api.fetchPopularMovies
 import at.ac.fhcampuswien.watchdog.models.Movie
-import at.ac.fhcampuswien.watchdog.navigation.Navigation
+import at.ac.fhcampuswien.watchdog.models.getMovies
+import at.ac.fhcampuswien.watchdog.navigation.BottomNavGraph
 import at.ac.fhcampuswien.watchdog.viewmodels.HomeViewModel
 import coil.compose.AsyncImage
 
 @Composable
 fun HomeScreen(
-    homeViewModel: HomeViewModel = viewModel()
+    homeViewModel: HomeViewModel
 ){
-    fetchPopularMovies(
+    /*fetchPopularMovies(
         url = "https://api.themoviedb.org/3/movie/popular",
         homeViewModel = homeViewModel
-    )
+    )*/
 
     val navController = rememberNavController()
 
@@ -38,7 +37,7 @@ fun HomeScreen(
         bottomBar = { BottomBar(navController = navController) }
     ) {padding ->
         LazyMovieGrid(homeViewModel = homeViewModel, padding = padding)
-        Navigation(navController = navController, homeViewModel = homeViewModel)
+        BottomNavGraph(navController = navController, homeViewModel = homeViewModel)
 
     }
 
@@ -49,7 +48,9 @@ fun HomeScreen(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LazyMovieGrid(homeViewModel: HomeViewModel, padding: PaddingValues) {
-    val movieList = homeViewModel.movieList//.collectAsState();
+    //val movieList = homeViewModel.movieList//.collectAsState();
+
+    val movieList = getMovies()
     //val coroutineScope = rememberCoroutineScope()
 
     LazyVerticalStaggeredGrid(
@@ -86,7 +87,11 @@ fun MovieImage(movie: Movie){
 @Composable
 fun BottomBar(navController: NavHostController) {
     val screens = listOf(
-        Screen.Home
+        Screen.Add,
+        Screen.Favorites,
+        Screen.Home,
+        Screen.Planned,
+        Screen.Finished
     )
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination

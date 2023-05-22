@@ -1,7 +1,7 @@
 package at.ac.fhcampuswien.watchdog.screens
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.*
 import androidx.compose.ui.graphics.vector.ImageVector
 
 
@@ -16,12 +16,37 @@ sealed class Screen (
         icon = Icons.Default.Home
     )
 
-    /*object DetailScreen : Screen("detail/{movieId}") {
+    object Favorites : Screen(
+        route = "favorites",
+        title = "Favorites",
+        icon = Icons.Default.Favorite
+    )
+
+    object Detail : Screen(
+        route = "detail/{id}",
+        title = "Detail",
+        icon = Icons.Default.ArrowBack
+    ) {
         fun withId(id: String): String {
-            return this.route.replace(oldValue = "{movieId}", newValue = id)
+            return this.route.replace(oldValue = "{id}", newValue = id)
         }
     }
-    object FavoriteScreen : Screen("favorite")
 
-    object AddMovieScreen : Screen("addMovie")*/
+    object Add : Screen(
+        route = "add",
+        title = "Add",
+        icon = Icons.Default.Add
+    )
+
+    object Finished : Screen(
+        route = "finished",
+        title = "Finished",
+        icon = Icons.Default.Done
+    )
+
+    object Planned : Screen(
+        route = "planned",
+        title = "Marked",
+        icon = Icons.Default.List
+    )
 }
