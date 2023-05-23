@@ -10,11 +10,41 @@ sealed class Screen (
      val title: String,
      val icon: ImageVector
 ) {
+
+    // Bottom Nav Bar
+    object Profile : Screen(
+        route = "profile",
+        title = "Profile",
+        icon = Icons.Default.Person
+    )
+
     object Home : Screen(
         route = "home",
         title = "Home",
         icon = Icons.Default.Home
     )
+
+    object Library : Screen(
+        route = "library",
+        title = "Library",
+        icon = Icons.Default.List
+    )
+
+    // Side Bar
+
+    object Settings : Screen(
+        route = "settings",
+        title = "Settings",
+        icon = Icons.Default.Settings
+    )
+
+    object Account : Screen(
+        route = "account",
+        title = "Account",
+        icon = Icons.Default.AccountCircle
+    )
+
+    // Other screens
 
     object Favorites : Screen(
         route = "favorites",
@@ -28,15 +58,26 @@ sealed class Screen (
         icon = Icons.Default.Add
     )
 
-    object Finished : Screen(
-        route = "finished",
-        title = "Finished",
+    object Completed : Screen(
+        route = "completed",
+        title = "Completed",
         icon = Icons.Default.Done
     )
 
     object Planned : Screen(
         route = "planned",
-        title = "Marked",
+        title = "Plan to Watch",
         icon = Icons.Default.List
     )
+}
+
+fun getBottomScreens(): List<Screen>{
+    return listOf(Screen.Profile, Screen.Home, Screen.Library)
+}
+fun getSideScreens(): List<Screen>{
+    return listOf(Screen.Account, Screen.Settings)
+}
+
+fun getLibraryScreens(): List<Screen>{
+    return listOf(Screen.Favorites, Screen.Planned, Screen.Completed, Screen.Add)
 }

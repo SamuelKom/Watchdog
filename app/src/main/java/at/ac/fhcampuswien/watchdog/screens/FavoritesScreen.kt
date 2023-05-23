@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.Scaffold
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
@@ -18,7 +19,9 @@ import at.ac.fhcampuswien.watchdog.viewmodels.HomeViewModel
 fun FavoritesScreen(
     navController: NavController = rememberNavController(), homeViewModel: HomeViewModel
 ) {
-    Scaffold(bottomBar = { BotNavBar(navController = navController) }) { padding ->
+    val scaffoldState = rememberScaffoldState()
+    Scaffold(bottomBar = { BotNavBar(navController = navController, scaffoldState = scaffoldState, items = getBottomScreens()) })
+    { padding ->
         Column(modifier = Modifier.padding(padding)) {
             LazyColumn {
                 items(getMovies()){ movie ->
