@@ -35,7 +35,7 @@ fun LazyMovieGrid(homeViewModel: HomeViewModel, padding: PaddingValues) {
             //coroutineScope.launch {
             items(movieList) { movie ->
                 MovieImage(movie = movie)
-                println(movieList.count())
+                //println(movieList.count())
             }
             //}
         },
@@ -55,7 +55,7 @@ fun MovieImage(movie: Movie){
             .fillMaxWidth()
             .wrapContentHeight()
     )
-    println(movie.poster)
+    //println(movie.poster)
 }
 
 @Composable

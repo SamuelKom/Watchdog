@@ -24,7 +24,7 @@ fun HomeScreen(
     Scaffold(
         scaffoldState = scaffoldState,
         drawerContent = { SideBar(modifier = Modifier, navController = navController, items = getSideScreens()) },
-        bottomBar = { BotNavBar(navController = navController, scaffoldState = scaffoldState, items = getBottomScreens()) }
+        bottomBar = { BotNavBar(navController = navController, scaffoldState = scaffoldState) }
     ) {padding ->
         LazyMovieGrid(homeViewModel = homeViewModel, padding = padding)
     }

@@ -29,7 +29,6 @@ sealed class Screen (
         title = "Library",
         icon = Icons.Default.List
     )
-
     // Side Bar
 
     object Settings : Screen(
@@ -44,40 +43,33 @@ sealed class Screen (
         icon = Icons.Default.AccountCircle
     )
 
-    // Other screens
-
+    // Library screens
     object Favorites : Screen(
         route = "favorites",
         title = "Favorites",
         icon = Icons.Default.Favorite
     )
 
-    object Add : Screen(
-        route = "add",
-        title = "Add",
-        icon = Icons.Default.Add
-    )
-
     object Completed : Screen(
         route = "completed",
         title = "Completed",
-        icon = Icons.Default.Done
+        icon = Icons.Default.Check
     )
 
     object Planned : Screen(
         route = "planned",
         title = "Plan to Watch",
-        icon = Icons.Default.List
+        icon = Icons.Default.Star
+    )
+
+    // Other
+    object Add : Screen(
+        route = "add",
+        title = "Add",
+        icon = Icons.Default.Add
     )
 }
 
-fun getBottomScreens(): List<Screen>{
-    return listOf(Screen.Profile, Screen.Home, Screen.Library)
-}
 fun getSideScreens(): List<Screen>{
     return listOf(Screen.Account, Screen.Settings)
-}
-
-fun getLibraryScreens(): List<Screen>{
-    return listOf(Screen.Favorites, Screen.Planned, Screen.Completed, Screen.Add)
 }
