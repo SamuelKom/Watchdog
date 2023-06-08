@@ -39,34 +39,42 @@ fun BotNavBar(navController: NavController, scaffoldState: ScaffoldState) {
             selected = currentDestination?.hierarchy?.any {
                 it.route == Screen.Home.route
             } == true,
-            onClick = { navController.navigate(Screen.Home.route) }
+            onClick = { navController.popBackStack(route = Screen.Home.route, inclusive = false) }
         )
         BottomNavigationItem(label = { Text(text = Screen.Library.title) },
             icon = { Icon(imageVector = Screen.Library.icon, contentDescription = "Navigation Icon") },
             selected = currentDestination?.hierarchy?.any {
                 it.route == Screen.Library.route
             } == true,
-            onClick = { navController.navigate(Screen.Library.route) }
+            onClick = {
+                navController.popBackStack(route = Screen.Home.route, inclusive = false)
+                navController.navigate(Screen.Library.route)
+            }
         )
     }
 }
 
 @Composable
-fun SideBar(modifier: Modifier, navController: NavController, items: List<Screen>) {
+fun SideBar(modifier: Modifier, navController: NavController, items: List<Screen>, scaffoldState: ScaffoldState) {
+    val scope = rememberCoroutineScope()
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 32.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = "Header Box")
+        Text(text = "Some Tile")
     }
     LazyColumn(modifier = modifier) {
         items(items) { item ->
             Row(modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp)
-                .clickable { navController.navigate(item.route) }) {
+                .clickable {
+                    scope.launch { scaffoldState.drawerState.close() }
+                    navController.popBackStack(route = Screen.Home.route, inclusive = false)
+                    navController.navigate(item.route)
+                }) {
                 Icon(imageVector = item.icon, contentDescription = "Menu Icon")
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(text = item.title, modifier = Modifier.weight(1f))

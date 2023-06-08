@@ -5,9 +5,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import at.ac.fhcampuswien.watchdog.screens.HomeScreen
-import at.ac.fhcampuswien.watchdog.screens.LibraryScreen
-import at.ac.fhcampuswien.watchdog.screens.Screen
+import at.ac.fhcampuswien.watchdog.screens.*
 import at.ac.fhcampuswien.watchdog.viewmodels.HomeViewModel
 
 @Composable
@@ -23,6 +21,12 @@ fun Navigation() {
         }
         composable(route = Screen.Library.route) {
             LibraryScreen(navController = navController, homeViewModel = homeViewModel)
+        }
+        composable(route = Screen.Account.route) {
+            AccountScreen(navController = navController, homeViewModel = homeViewModel)
+        }
+        composable(route = Screen.Settings.route) {
+            SettingsScreen(navController = navController, homeViewModel = homeViewModel)
         }
     }
 }

@@ -11,12 +11,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import at.ac.fhcampuswien.watchdog.utils.*
+import at.ac.fhcampuswien.watchdog.utils.BotNavBar
+import at.ac.fhcampuswien.watchdog.utils.SideBar
 import at.ac.fhcampuswien.watchdog.viewmodels.HomeViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun LibraryScreen(
+fun AccountScreen(
     navController: NavController = rememberNavController(), homeViewModel: HomeViewModel
 ) {
     val scope = rememberCoroutineScope()
@@ -24,11 +25,10 @@ fun LibraryScreen(
     Scaffold(
         scaffoldState = scaffoldState,
         drawerContent = { SideBar(modifier = Modifier, navController = navController, items = getSideScreens(), scaffoldState = scaffoldState) },
-        bottomBar = { BotNavBar(navController = navController, scaffoldState = scaffoldState) },
-        topBar = { LibraryTopBar(modifier = Modifier, navController = navController) }
+        bottomBar = { BotNavBar(navController = navController, scaffoldState = scaffoldState) }
     ) { padding ->
         Column(modifier = Modifier.padding(padding)) {
-            Text(text = "Library")
+            Text(text = "Account")
         }
     }
 
