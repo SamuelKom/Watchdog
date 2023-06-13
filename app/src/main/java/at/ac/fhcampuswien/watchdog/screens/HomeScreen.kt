@@ -9,6 +9,7 @@ import androidx.navigation.compose.rememberNavController
 import at.ac.fhcampuswien.watchdog.api.fetchPopularMovies
 import at.ac.fhcampuswien.watchdog.utils.BotNavBar
 import at.ac.fhcampuswien.watchdog.utils.LazyMovieGrid
+import at.ac.fhcampuswien.watchdog.utils.SearchBar
 import at.ac.fhcampuswien.watchdog.utils.SideBar
 import at.ac.fhcampuswien.watchdog.viewmodels.HomeViewModel
 import kotlinx.coroutines.launch
@@ -27,6 +28,12 @@ fun HomeScreen(
 
     Scaffold(
         scaffoldState = scaffoldState,
+        topBar = {
+            SearchBar(text = "Some text",
+                onTextChange = {},
+                onCloseClicked = {},
+                onSearchClicked ={})
+        },
         drawerContent = { SideBar(modifier = Modifier, navController = navController, items = getSideScreens(), scaffoldState = scaffoldState) },
         bottomBar = { BotNavBar(navController = navController, scaffoldState = scaffoldState) }
     ) {padding ->
