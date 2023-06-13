@@ -1,10 +1,13 @@
 package at.ac.fhcampuswien.watchdog.models
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 import java.util.*
 
+@Entity(tableName = "movie")
 data class Movie(
-    val UID: String = UUID.randomUUID().toString(),
+    @PrimaryKey val UID: String = UUID.randomUUID().toString(),
 
     @SerializedName("id")
     val TMDb_id: Int = -1,
@@ -24,7 +27,11 @@ data class Movie(
     @SerializedName("vote_average")
     val rating: Double = 0.0,
 
-    var isFavorite: Boolean = false
+    var isFavorite: Boolean = false,
+
+    var isComplete: Boolean = false,
+
+    var isPlanned: Boolean = false
 
     // companies, actors, genres
 )

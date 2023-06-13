@@ -3,6 +3,8 @@ package at.ac.fhcampuswien.watchdog.utils
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
@@ -22,9 +24,7 @@ import coil.compose.AsyncImage
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun LazyMovieGrid(homeViewModel: HomeViewModel, padding: PaddingValues) {
-    val movieList = homeViewModel.movieList//.collectAsState();
-
-    //val movieList = getMovies()
+    val movieList = homeViewModel.movieList
     //val coroutineScope = rememberCoroutineScope()
 
     LazyVerticalStaggeredGrid(
@@ -59,15 +59,29 @@ fun MovieImage(movie: Movie){
 }
 
 @Composable
-fun OverViewList(
-    modifier: Modifier = Modifier,
-    movie: Movie = getMovies()[0],
-    onClick: (String) -> Unit = {},
-    onFavClick: (Movie) -> Unit = {}
+fun LibraryList( //call within a column
+    movies: List<Movie> = getMovies(),
+    //series: List<Series> = getSeries(),
+    //other lambda functions
 ) {
-    Card(modifier = modifier
+    LazyColumn {
+        items(movies){ movie ->
+            ItemCard(
+                movie = movie,
+            )
+        }
+    }
+}
+
+@Composable
+fun ItemCard(
+    movie: Movie = getMovies()[0],
+    //onClick: (String) -> Unit = {},
+    //onFavClick: (Movie) -> Unit = {}
+) {
+    Card(modifier = Modifier
         .clickable {
-            onClick(movie.UID)
+            //onClick(movie.UID)
         }
         .fillMaxWidth()
         .padding(5.dp), shape = Shapes.large, elevation = 10.dp) {

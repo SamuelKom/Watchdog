@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
+import at.ac.fhcampuswien.watchdog.viewmodels.LibraryViewModel
 import kotlinx.coroutines.launch
 
 @Composable
@@ -97,31 +98,32 @@ fun SideBar(
 }
 
 @Composable
-fun LibraryTopBar(modifier: Modifier, navController: NavController) {
+fun LibraryTopBar(modifier: Modifier, libraryViewModel: LibraryViewModel) {
     TopAppBar(
         elevation = AppBarDefaults.TopAppBarElevation
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly
+            modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly
         ) {
             Column {
                 //Icon(imageVector = Screen.Favorites.icon, contentDescription = Screen.Favorites.title)
-                Text(text = Screen.Favorites.title, modifier = Modifier.clickable {
-                    // call view-model function to display list
+                Text(text = Screen.Favorites.title, Modifier.clickable{
+                    libraryViewModel.changeList(0)
                 })
+
             }
 
             Column {
                 //Icon(imageVector = Screen.Completed.icon, contentDescription = Screen.Completed.title)
-                Text(text = Screen.Completed.title, modifier = Modifier.clickable {
-                    // call view-model function to display list
+                Text(text = Screen.Completed.title, Modifier.clickable{
+                    libraryViewModel.changeList(1)
                 })
             }
 
             Column {
                 //Icon(imageVector = Screen.Planned.icon, contentDescription = Screen.Planned.title)
-                Text(text = Screen.Planned.title, modifier = Modifier.clickable {
-                    // call view-model function to display list
+                Text(text = Screen.Planned.title, Modifier.clickable{
+                    libraryViewModel.changeList(2)
                 })
             }
         }
