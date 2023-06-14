@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface MovieDao {
     //CRUD
-
+/*
     @Insert
     suspend fun add(movie: Movie)
 
@@ -32,4 +32,5 @@ interface MovieDao {
     @Query("Select * from movie where UID=:id")
     fun getMovieById(id: String): Flow<Movie>
 
+ */
 }

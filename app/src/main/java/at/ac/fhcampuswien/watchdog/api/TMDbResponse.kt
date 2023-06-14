@@ -1,18 +1,14 @@
 package at.ac.fhcampuswien.watchdog.api
 
-import at.ac.fhcampuswien.watchdog.models.Movie
 import com.google.gson.annotations.SerializedName
 
-data class TMDbResponse (
+open class TMDbResponse (
     @SerializedName("page")
-    var page: Int?,
-
-    @SerializedName("results")
-    var results: List<Movie>?,
+    var page: Int? = 0,
 
     @SerializedName("total_pages")
-    var total_pages: Int?,
+    var total_pages: Int? = 0,
 
     @SerializedName("total_results")
-    var total_results: Int?
+    var total_results: Int? = 0
 )

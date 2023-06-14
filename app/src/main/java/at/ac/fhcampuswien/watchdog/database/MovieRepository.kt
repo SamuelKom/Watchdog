@@ -3,6 +3,7 @@ package at.ac.fhcampuswien.watchdog.database
 import at.ac.fhcampuswien.watchdog.models.Movie
 
 class MovieRepository(private val movieDao: MovieDao) {
+    /*
     suspend fun add(movie: Movie) = movieDao.add(movie)
 
     suspend fun delete(movie: Movie) = movieDao.delete(movie)
@@ -18,4 +19,6 @@ class MovieRepository(private val movieDao: MovieDao) {
     fun getAllPlanned() = movieDao.getAllPlanned()
 
     fun getMovieById(id: String) = movieDao.getMovieById(id)
+
+     */
 }

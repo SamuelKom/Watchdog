@@ -18,6 +18,7 @@ class LibraryViewModel(private val repository: MovieRepository): ViewModel() {
     private val _plannedMovies = MutableStateFlow(listOf<Movie>())
 
     init {
+        /*
         viewModelScope.launch {
             repository.getAllFavorite().collect() { favoriteList ->
                 _favoriteMovies.value = favoriteList
@@ -30,11 +31,13 @@ class LibraryViewModel(private val repository: MovieRepository): ViewModel() {
                 _plannedMovies.value = plannedList
             }
         }
+
+         */
     }
 
     suspend fun updateFav(movie: Movie) {
         movie.isFavorite = !movie.isFavorite
-        repository.update(movie)
+        //repository.update(movie)
     }
 
     // get different list functions

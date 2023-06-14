@@ -6,14 +6,16 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import at.ac.fhcampuswien.watchdog.models.Movie
+import at.ac.fhcampuswien.watchdog.models.Watchable
+
 
 @Database(
-    entities = [Movie::class],
-    version = 1,
+    entities = [Watchable::class],
+    version = 2,
     exportSchema = false
 )
 
-@TypeConverters(DatabaseConverters::class)
+//@TypeConverters(DatabaseConverters::class)
 abstract class MovieDatabase: RoomDatabase() {
 
     abstract fun movieDao(): MovieDao
