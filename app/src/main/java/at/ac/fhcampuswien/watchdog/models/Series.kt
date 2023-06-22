@@ -1,18 +1,21 @@
 package at.ac.fhcampuswien.watchdog.models
 
+import androidx.room.Entity
+import com.google.gson.annotations.SerializedName
 import java.util.*
 
-data class Series(
-    val id: String = UUID.randomUUID().toString(),
+@Entity(tableName = "series")
+class Series(
+    @SerializedName("name")
     val title: String = "",
+
+    @SerializedName("first_air_date")
+    val date: String = "",
+
     val episodes: Int = 0,
     val season: Int = 0,
-    val year: String = "",
     val genre: List<String> = listOf(),
     val director: String = "",
-    val actors: String = "",
-    val plot: String = "",
-    val images: List<String> = listOf(),
-    val rating: Double = 0.0,
-    var isFavorite: Boolean = false
-)
+    val actors: String = ""
+
+) : Watchable()

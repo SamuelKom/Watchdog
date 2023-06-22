@@ -1,15 +1,13 @@
 package at.ac.fhcampuswien.watchdog.viewmodels
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import at.ac.fhcampuswien.watchdog.database.MovieRepository
+import at.ac.fhcampuswien.watchdog.database.WatchableRepository
 import at.ac.fhcampuswien.watchdog.models.Movie
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
 
-class LibraryViewModel(private val repository: MovieRepository): ViewModel() {
+class LibraryViewModel(private val repository: WatchableRepository): ViewModel() {
     private val _currentMovies = MutableStateFlow(listOf<Movie>())
     val currentMoviesState: StateFlow<List<Movie>> = _currentMovies.asStateFlow()
 
