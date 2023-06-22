@@ -34,7 +34,9 @@ fun BotNavBar(navController: NavController, scaffoldState: ScaffoldState) {
     val currentDestination = navBackStackEntry?.destination
     val scope = rememberCoroutineScope()
 
-    BottomAppBar{
+    BottomAppBar(
+        contentColor = Color.White
+    ){
         BottomNavigationItem(label = { Text(text = Screen.Profile.title) }, icon = {
             Icon(
                 imageVector = Screen.Profile.icon, contentDescription = "Navigation Icon"

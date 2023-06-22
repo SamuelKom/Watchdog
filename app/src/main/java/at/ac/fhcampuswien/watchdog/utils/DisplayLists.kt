@@ -1,5 +1,6 @@
 package at.ac.fhcampuswien.watchdog.utils
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -16,11 +17,7 @@ import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithCache
@@ -94,6 +91,11 @@ fun WatchableImage(watchable: Watchable) {
     var popUpShown by remember {
         mutableStateOf(false)
     }
+
+    val onDismissPopup = {
+        popUpShown = false
+    }
+
     AsyncImage(
         model = watchable.poster,
         contentScale = ContentScale.Crop,
@@ -119,6 +121,8 @@ fun WatchableImage(watchable: Watchable) {
             )
         }
     }
+
+    BackHandler(enabled = popUpShown, onBack = onDismissPopup)
 }
 
 @Composable
