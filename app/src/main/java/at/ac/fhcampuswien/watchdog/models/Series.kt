@@ -1,8 +1,10 @@
 package at.ac.fhcampuswien.watchdog.models
 
+import androidx.room.Entity
 import com.google.gson.annotations.SerializedName
 import java.util.*
 
+@Entity(tableName = "series")
 class Series(
     @SerializedName("name")
     val title: String = "",

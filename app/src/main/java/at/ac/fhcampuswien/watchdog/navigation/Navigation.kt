@@ -6,8 +6,8 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import at.ac.fhcampuswien.watchdog.database.MovieDatabase
-import at.ac.fhcampuswien.watchdog.database.MovieRepository
+import at.ac.fhcampuswien.watchdog.database.WatchableDatabase
+import at.ac.fhcampuswien.watchdog.database.WatchableRepository
 import at.ac.fhcampuswien.watchdog.screens.*
 import at.ac.fhcampuswien.watchdog.viewmodels.HomeViewModel
 import at.ac.fhcampuswien.watchdog.viewmodels.HomeViewModelFactory
@@ -16,8 +16,8 @@ import at.ac.fhcampuswien.watchdog.viewmodels.LibraryViewModelFactory
 
 @Composable
 fun Navigation() {
-    val db = MovieDatabase.getDatabase(LocalContext.current)
-    val repository = MovieRepository(movieDao = db.movieDao())
+    val db = WatchableDatabase.getDatabase(LocalContext.current)
+    val repository = WatchableRepository(watchableDao = db.watchableDao())
 
     val homeFactory = HomeViewModelFactory(repository)
     val libraryFactory = LibraryViewModelFactory(repository)
