@@ -32,7 +32,7 @@ fun LibraryScreen(
         topBar = { LibraryTopBar(modifier = Modifier, libraryViewModel = libraryViewModel) }
     ) { padding ->
         Column(modifier = Modifier.padding(padding)) {
-            LibraryList(currentMoviesState)
+            //LibraryList(currentMoviesState)
         }
     }
 

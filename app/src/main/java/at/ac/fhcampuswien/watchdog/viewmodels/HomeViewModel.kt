@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import at.ac.fhcampuswien.watchdog.database.MovieRepository
 import at.ac.fhcampuswien.watchdog.models.Movie
 import at.ac.fhcampuswien.watchdog.models.Series
+import at.ac.fhcampuswien.watchdog.models.Watchable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -15,7 +16,7 @@ class HomeViewModel(private val repository: MovieRepository): ViewModel() {
     //val movieList: StateFlow<List<Movie>> = _movieList.asStateFlow()
 
     private val _popularM = mutableStateListOf<Movie>()
-    private val _topRated = mutableStateListOf<Movie>()
+    private val _topRatedM = mutableStateListOf<Movie>()
 
     private val _topRatedS = mutableStateListOf<Series>()
     private val _airingTodayS = mutableStateListOf<Series>()
@@ -24,7 +25,7 @@ class HomeViewModel(private val repository: MovieRepository): ViewModel() {
         get() = _popularM
 
     val topRatedMovies: List<Movie>
-        get() = _topRated
+        get() = _topRatedM
 
     val topRatedSeries: List<Series>
         get() = _topRatedS
@@ -46,8 +47,8 @@ class HomeViewModel(private val repository: MovieRepository): ViewModel() {
     }
 
     fun addTopRatedMovie(m: Movie) {
-        if (_topRated.firstOrNull{ it.UID == m.UID }  == null) {
-            _topRated.add(m)
+        if (_topRatedM.firstOrNull{ it.UID == m.UID }  == null) {
+            _topRatedM.add(m)
         }
     }
 
@@ -61,5 +62,23 @@ class HomeViewModel(private val repository: MovieRepository): ViewModel() {
         if (_airingTodayS.firstOrNull{ it.UID == s.UID }  == null) {
             _airingTodayS.add(s)
         }
+    }
+
+    suspend fun toggleFavourite(watchable: Watchable) {
+        watchable.isFavorite = !watchable.isFavorite
+        //repository.update(watchable)
+    }
+
+    suspend fun togglePlanned(watchable: Watchable) {
+        watchable.isPlanned = !watchable.isPlanned
+        //repository.update(watchable)
+    }
+
+    suspend fun toggleWatched(watchable: Watchable) {
+        println("Here")
+        println("Before: " + watchable.isComplete)
+        watchable.isComplete = !watchable.isComplete
+        println("After: " + watchable.isComplete)
+        //repository.update(watchable)
     }
 }

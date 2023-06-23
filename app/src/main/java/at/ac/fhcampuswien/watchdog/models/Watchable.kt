@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName
 import java.util.UUID
 
 @Entity(tableName = "watchable")
-open class Watchable(
+abstract class Watchable(
     @PrimaryKey
     val UID: String = UUID.randomUUID().toString(),
 
@@ -16,16 +16,23 @@ open class Watchable(
     @SerializedName("overview")
     val plot: String = "",
 
+    //@SerializedName("genres")
+    //val genres: List<Genre> = emptyList(),
+
     @SerializedName("vote_average")
     val rating: Double = 0.0,
 
     @SerializedName("poster_path")
     var poster: String = "",
 
-    @SerializedName("backdrop_path")
-    var detailPoster: String = "",
+    //@SerializedName("backdrop_path")
+    var detailPoster: List<String> = emptyList(),
 
     var isFavorite: Boolean = false,
     var isComplete: Boolean = false,
     var isPlanned: Boolean = false
-)
+) {
+
+    abstract fun getWatchableTitle() : String
+    abstract fun getWatchableDate() : String
+}

@@ -11,7 +11,10 @@ class Movie(
     val date: String = ""
 
     // companies, actors, genres
-) : Watchable()
+) : Watchable() {
+    override fun getWatchableTitle(): String = title
+    override fun getWatchableDate(): String = date
+}
 
 /*
 fun getMovies(): List<Movie> {

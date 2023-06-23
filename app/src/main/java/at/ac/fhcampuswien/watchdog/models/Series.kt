@@ -16,4 +16,7 @@ class Series(
     val director: String = "",
     val actors: String = ""
 
-) : Watchable()
+) : Watchable() {
+    override fun getWatchableTitle(): String = title
+    override fun getWatchableDate(): String = date
+}

@@ -15,7 +15,7 @@ import at.ac.fhcampuswien.watchdog.models.Watchable
     exportSchema = false
 )
 
-//@TypeConverters(DatabaseConverters::class)
+@TypeConverters(DatabaseConverters::class)
 abstract class MovieDatabase: RoomDatabase() {
 
     abstract fun movieDao(): MovieDao

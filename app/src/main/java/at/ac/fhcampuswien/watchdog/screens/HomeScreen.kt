@@ -5,7 +5,10 @@ import androidx.compose.runtime.*
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.*
@@ -14,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import at.ac.fhcampuswien.watchdog.R
 import at.ac.fhcampuswien.watchdog.api.fetchPopularMovies
 import at.ac.fhcampuswien.watchdog.api.fetchSeriesAiringToday
 import at.ac.fhcampuswien.watchdog.api.fetchTopRatedMovies
@@ -54,17 +58,42 @@ fun HomeScreen(
             )
         },
         bottomBar = { BotNavBar(navController = navController, scaffoldState = scaffoldState) },
-        backgroundColor = Color(0xFF19191A) //Color(R.color.grey)
+        backgroundColor = MaterialTheme.colors.primary
     ) { padding ->
         println(padding)
         LazyColumn(
-            Modifier.padding(start = 0.dp, top = 10.dp, bottom = 80.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
-            item { HorizontalWatchableList(listTitle = "Popular Movies", homeViewModel.popularMovies) }
-            item { HorizontalWatchableList(listTitle = "Top-Rated Movies", homeViewModel.topRatedMovies) }
-            item { HorizontalWatchableList(listTitle = "Top-Rated Series", homeViewModel.topRatedSeries) }
-            item { HorizontalWatchableList(listTitle = "Series airing today", homeViewModel.seriesAiringToday) }
+            item { Divider(Modifier.fillMaxWidth()) }
+            item {
+                HorizontalWatchableList(
+                    listTitle = "Popular Movies",
+                    watchableList = homeViewModel.popularMovies,
+                    viewModel = homeViewModel
+                )
+            }
+            item {
+                HorizontalWatchableList(
+                    listTitle = "Top-Rated Movies",
+                    homeViewModel.topRatedMovies,
+                    viewModel = homeViewModel
+                )
+            }
+            item {
+                HorizontalWatchableList(
+                    listTitle = "Top-Rated Series",
+                    homeViewModel.topRatedSeries,
+                    viewModel = homeViewModel
+                )
+            }
+            item {
+                HorizontalWatchableList(
+                    listTitle = "Series airing today",
+                    homeViewModel.seriesAiringToday,
+                    viewModel = homeViewModel
+                )
+            }
+            item { Divider(Modifier.fillMaxWidth().height(60.dp)) }
         }
     }
 
