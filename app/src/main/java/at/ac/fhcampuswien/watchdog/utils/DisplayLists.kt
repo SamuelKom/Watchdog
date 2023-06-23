@@ -6,7 +6,6 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
@@ -30,8 +29,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.BlendMode
@@ -49,22 +46,36 @@ import coil.compose.AsyncImage
 import at.ac.fhcampuswien.watchdog.R
 import coil.compose.rememberAsyncImagePainter
 import kotlinx.coroutines.launch
-import kotlin.random.Random
 import android.os.Handler
+import android.view.ViewGroup
+import android.webkit.WebSettings
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.rememberSwipeableState
-import androidx.compose.material.ripple.rememberRipple
-import androidx.compose.material.swipeable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.withFrameNanos
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.viewinterop.AndroidView
+import kotlin.random.Random
+
 
 @Composable
 fun HorizontalWatchableList(
@@ -238,20 +249,9 @@ fun WatchablePopUp(
     onTogglePlannedClicked: (Watchable) -> Unit,
     onToggleWatchedClicked: (Watchable) -> Unit
 ) {
-
     var showBackground by remember { mutableStateOf(false) }
     var showPopup by remember { mutableStateOf(true) }
     var isExpanded by remember { mutableStateOf(false) }
-    var imageIndex by remember { mutableStateOf(0) }
-
-    /** To update the watchable background image */
-    val mainHandler = Handler(Looper.getMainLooper())
-    val updateImage = object : Runnable {
-        override fun run() {
-            imageIndex = Random.nextInt(watchable.detailPoster.size)
-            mainHandler.postDelayed(this, 7000)
-        }
-    }
 
     /** To animate the popup background (opacity outside and black inside) */
     val innerBackgroundColor by animateColorAsState(
@@ -281,13 +281,11 @@ fun WatchablePopUp(
     )
 
     /** Trigger the animations 1 frame after they've been drawn
-        so they're assured to been scaled correctly */
+    so they're assured to been scaled correctly */
     LaunchedEffect(showPopup) {
         if (showPopup) {
             withFrameNanos { }
             isExpanded = true
-            if (!mainHandler.hasCallbacks(updateImage))
-                mainHandler.postDelayed(updateImage, 7000)
         } else {
             isExpanded = false
         }
@@ -322,15 +320,11 @@ fun WatchablePopUp(
                     ) {
                         /** Top container with background image, close button and title */
                         PopUpTopBox(
-                            title = watchable.getWatchableTitle(),
-                            posters = watchable.detailPoster,
-                            imageIndex = imageIndex,
-                            onDismissRequest = {
-                                mainHandler.removeCallbacks(updateImage)
-                                showPopup = !showPopup
-                                showBackground = !showBackground
-                            }
-                        )
+                            watchable = watchable
+                        ) {
+                            showPopup = !showPopup
+                            showBackground = !showBackground
+                        }
                         Row(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             modifier = Modifier
@@ -429,6 +423,75 @@ fun WatchablePopUp(
 }
 
 @Composable
+fun PopUpBackgroundImage(posters: List<String>, imageIndex: Int) {
+
+    Crossfade(
+        animationSpec = tween(3000),
+        targetState = imageIndex,
+    ) { idx ->
+        AsyncImage(
+            model = posters[idx],
+            contentScale = ContentScale.Crop,
+            contentDescription = "Background poster",
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .drawWithCache {
+                    val gradient = Brush.verticalGradient(
+                        colors = listOf(Color.Transparent, Color.Black),
+                        startY = size.height / 3,
+                        endY = size.height
+                    )
+                    onDrawWithContent {
+                        drawContent()
+                        drawRect(gradient, blendMode = BlendMode.Multiply)
+                    }
+                }
+        )
+    }
+}
+
+@Composable
+fun YoutubeScreen(
+    videoUrl: String,
+    modifier: Modifier = Modifier
+) {
+    AndroidView(
+        modifier = modifier,
+        factory = { context ->
+
+            val webView = WebView(context)
+            webView.layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+            webView.webViewClient = object : WebViewClient() {
+                override fun onPageFinished(view: WebView, url: String) {
+                    super.onPageFinished(view, url)
+                    // Call JavaScript function to simulate a click on the video element
+                    webView.evaluateJavascript("document.getElementById('player').click();", null)
+                }
+            }
+
+            val settings: WebSettings = webView.settings
+            settings.javaScriptEnabled = true
+            settings.mediaPlaybackRequiresUserGesture = false
+
+            val iframeHTML = """
+                    <html>
+                    <body style="margin:0px;padding:0px;">
+                    <iframe id="player" width="100%" height="100%" src="${videoUrl}?autoplay=1" frameborder="0" allowfullscreen></iframe>
+                    </body>
+                    </html>
+                """.trimIndent()
+
+            webView.loadData(iframeHTML, "text/html", "utf-8")
+            webView
+        }
+    )
+}
+
+@Composable
 fun ClickableIcon(
     isActive: Boolean,
     activeIcon: Any?,
@@ -471,46 +534,66 @@ fun ClickableIcon(
     }
 }
 
+@SuppressLint("NewApi")
 @Composable
 fun PopUpTopBox(
-    title: String,
-    posters: List<String>,
-    imageIndex: Int,
+    watchable: Watchable,
     onDismissRequest: () -> Unit
 ) {
+    val mod = Modifier
+        .fillMaxWidth()
+        .wrapContentHeight()
+        .drawWithCache {
+            val gradient = Brush.verticalGradient(
+                colors = listOf(Color.Transparent, Color.Black),
+                startY = size.height / 3,
+                endY = size.height
+            )
+            onDrawWithContent {
+                drawContent()
+                drawRect(gradient, blendMode = BlendMode.Multiply)
+            }
+        }
+
+    var visible by remember {
+        mutableStateOf(true)
+    }
+
+    var imageIndex by remember { mutableStateOf(0) }
+
+    /** To update the watchable background image */
+    val mainHandler = Handler(Looper.getMainLooper())
+    val updateImage = object : Runnable {
+        override fun run() {
+            println("In here")
+            imageIndex = Random.nextInt(watchable.detailPosters.size)
+            mainHandler.postDelayed(this, 7000)
+        }
+    }
+
+    if (visible) {
+        visible = false
+        if (!mainHandler.hasCallbacks(updateImage))
+            mainHandler.postDelayed(updateImage, 7000)
+    }
+
     /** Image with title */
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .height(300.dp)
     ) {
-        Crossfade(
-            animationSpec = tween(3000),
-            targetState = imageIndex,
-        ) { index ->
-            AsyncImage(
-                model = posters[index],
-                contentScale = ContentScale.Crop,
-                contentDescription = "$title poster",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-                    .drawWithCache {
-                        val gradient = Brush.verticalGradient(
-                            colors = listOf(Color.Transparent, Color.Black),
-                            startY = size.height / 3,
-                            endY = size.height
-                        )
-                        onDrawWithContent {
-                            drawContent()
-                            drawRect(gradient, blendMode = BlendMode.Multiply)
-                        }
-                    }
-            )
-        }
+
+        PopUpBackgroundImage(posters = watchable.detailPosters, imageIndex = imageIndex)
+
+        //if (watchable.trailer.isNotEmpty())
+        //    YoutubeScreen(videoUrl = watchable.trailer, modifier = mod)
+
         /** Close button */
         IconButton(
-            onClick = { onDismissRequest() },
+            onClick = {
+                visible = false
+                onDismissRequest() },
             modifier = Modifier.align(Alignment.TopEnd)
         ) {
             Icon(
@@ -522,7 +605,7 @@ fun PopUpTopBox(
         }
         /** Title */
         Text(
-            text = title,
+            text = watchable.getWatchableTitle(),
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .padding(6.dp)

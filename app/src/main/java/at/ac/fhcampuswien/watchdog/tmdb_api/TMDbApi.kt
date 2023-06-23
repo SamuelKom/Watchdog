@@ -1,11 +1,11 @@
-package at.ac.fhcampuswien.watchdog.api
+package at.ac.fhcampuswien.watchdog.tmdb_api
 
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Query
 import retrofit2.http.Path
 
-interface APIServices {
+interface TMDbApi {
     @GET("/3/movie/popular")
     suspend fun getPopularMoviesReq(@Query("api_key") key: String): Response<MovieResponse>
 
@@ -14,6 +14,9 @@ interface APIServices {
 
     @GET("/3/movie/{id}/recommendations")
     suspend fun getMovieRecommendationsReq(@Path("id") id: Int, @Query("api_key") key: String): Response<MovieResponse>
+
+    @GET("/3/movie/{id}/videos")
+    suspend fun getMovieTrailersReq(@Path("id") id: Int, @Query("api_key") key: String): Response<VideosResponse>
 
     @GET("/3/movie/{id}/images")
     suspend fun getMoviePostersReq(@Path("id") id: Int, @Query("api_key") key: String): Response<ImagesResponse>

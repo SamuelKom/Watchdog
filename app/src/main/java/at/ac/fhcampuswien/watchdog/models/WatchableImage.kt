@@ -2,8 +2,7 @@ package at.ac.fhcampuswien.watchdog.models
 
 import com.google.gson.annotations.SerializedName
 
-data class MovieImage(
-
+data class WatchableImage(
     @SerializedName("aspect_ratio")
     val aspectRatio: Double = 0.0,
 

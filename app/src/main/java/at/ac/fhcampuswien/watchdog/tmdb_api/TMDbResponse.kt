@@ -1,4 +1,4 @@
-package at.ac.fhcampuswien.watchdog.api
+package at.ac.fhcampuswien.watchdog.tmdb_api
 
 import com.google.gson.annotations.SerializedName
 

@@ -1,21 +1,21 @@
-package at.ac.fhcampuswien.watchdog.api
+package at.ac.fhcampuswien.watchdog.tmdb_api
 
 import android.util.Log
 import at.ac.fhcampuswien.watchdog.models.Movie
 import at.ac.fhcampuswien.watchdog.models.Watchable
 import at.ac.fhcampuswien.watchdog.viewmodels.HomeViewModel
+import at.ac.fhcampuswien.watchdog.youtube_api.fetchVideo
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import java.util.Random
 
 const val API_KEY = "0b29f9dc2baed571f1bdbfc35c34eeb3"
 const val BASE_URL = "https://api.themoviedb.org"
 const val IMAGE_URL = "https://image.tmdb.org/t/p/original"
+const val YOUTUBE_EMBED_URL = "https://www.youtube.com/embed/"
 
 fun fetchPopularMovies(homeViewModel: HomeViewModel) {
     val service = createApiService()
@@ -61,12 +61,12 @@ fun fetchSeriesAiringToday(homeViewModel: HomeViewModel) {
     }
 }
 
-private suspend fun fetchMovieDetailPoster(service: APIServices, movieID: Int): ImagesResponse? {
+private suspend fun fetchMovieDetailPoster(service: TMDbApi, movieID: Int): ImagesResponse? {
 
     return service.getMoviePostersReq(key = API_KEY, id = movieID).body()
 }
 
-private suspend fun fetchSeriesDetailPoster(service: APIServices, movieID: Int): ImagesResponse? {
+private suspend fun fetchSeriesDetailPoster(service: TMDbApi, movieID: Int): ImagesResponse? {
 
     return service.getSeriesPostersReq(key = API_KEY, id = movieID).body()
 }
@@ -83,17 +83,34 @@ fun fetchDetailPoster(watchable: Watchable) {
             for (poster in posters.results) {
                 posterPaths.add(IMAGE_URL + poster.path)
             }
-            watchable.detailPoster = posterPaths
+            watchable.detailPosters = posterPaths
         }
     }
 }
 
-private fun createApiService(): APIServices {
+fun fetchTrailer(watchable: Watchable) {
+    val service = createApiService()
+    CoroutineScope(Dispatchers.IO).launch {
+        val trailers = service.getMovieTrailersReq(id = watchable.TMDbID, key = API_KEY)
+
+        if (trailers.body() != null) {
+            for (trailer in trailers.body()!!.results) {
+                println("Name: " + trailer.name)
+                if (trailer.site == "YouTube") {
+                    watchable.trailer = YOUTUBE_EMBED_URL + trailer.id
+                    return@launch
+                }
+            }
+        }
+    }
+}
+
+private fun createApiService(): TMDbApi {
     val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .addConverterFactory(GsonConverterFactory.create())
         .build()
-    return retrofit.create(APIServices::class.java)
+    return retrofit.create(TMDbApi::class.java)
 }
 
 private fun createMoviesFromResponse(
@@ -106,8 +123,9 @@ private fun createMoviesFromResponse(
         if (movieResponse != null) {
             for (m in movieResponse.results!!) {
                 m.poster = IMAGE_URL + m.poster
-                m.detailPoster = listOf(IMAGE_URL + m.detailPoster)
+                m.detailPosters = listOf(IMAGE_URL + m.detailPosters)
                 fetchDetailPoster(m)
+                fetchTrailer(watchable = m)
 
                 if (type == 1)
                     homeViewModel.addPopularMovie(m)
@@ -130,7 +148,7 @@ private fun createSeriesFromResponse(
         if (seriesResponse != null) {
             for (s in seriesResponse.results!!) {
                 s.poster = IMAGE_URL + s.poster
-                s.detailPoster = listOf(IMAGE_URL + s.detailPoster)
+                s.detailPosters = listOf(IMAGE_URL + s.detailPosters)
                 fetchDetailPoster(s)
                 if (type == 1)
                     homeViewModel.addTopRatedSeries(s)

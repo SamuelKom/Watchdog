@@ -25,8 +25,9 @@ abstract class Watchable(
     @SerializedName("poster_path")
     var poster: String = "",
 
-    //@SerializedName("backdrop_path")
-    var detailPoster: List<String> = emptyList(),
+    var detailPosters: List<String> = emptyList(),
+
+    var trailer: String = "",
 
     var isFavorite: Boolean = false,
     var isComplete: Boolean = false,
