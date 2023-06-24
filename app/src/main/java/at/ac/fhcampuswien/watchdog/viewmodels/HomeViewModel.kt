@@ -3,7 +3,7 @@ package at.ac.fhcampuswien.watchdog.viewmodels
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import at.ac.fhcampuswien.watchdog.database.MovieRepository
+import at.ac.fhcampuswien.watchdog.database.WatchableRepository
 import at.ac.fhcampuswien.watchdog.models.Movie
 import at.ac.fhcampuswien.watchdog.models.Series
 import at.ac.fhcampuswien.watchdog.models.Watchable
@@ -11,7 +11,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
-class HomeViewModel(private val repository: MovieRepository): ViewModel() {
+class HomeViewModel(private val repository: WatchableRepository): ViewModel() {
     //private val _movieList =  MutableStateFlow(mutableListOf<Movie>())
     //val movieList: StateFlow<List<Movie>> = _movieList.asStateFlow()
 
