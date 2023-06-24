@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -44,7 +45,7 @@ fun AccountScreen(
         ) {
             Spacer(modifier = Modifier.height(25.dp))
 
-            CircleWithLetter(letter = "M")
+            CircleWithLetter(letter = "M", color = Color.Blue)
 
             Row (
                 verticalAlignment = Alignment.CenterVertically,
@@ -165,11 +166,13 @@ fun TextColumn(number: Int, label: String) {
 }
 
 @Composable
-fun CircleWithLetter(letter: String) {
+fun CircleWithLetter(letter: String, color: Color, brush: Brush? = null) {
+
+    var modifier: Modifier = if (brush != null) Modifier.background(brush, shape = CircleShape)
+    else Modifier.background(color, shape = CircleShape)
+
     Box(
-        modifier = Modifier
-            .size(100.dp)
-            .background(Color.LightGray, shape = CircleShape)
+        modifier = modifier.size(115.dp)
     ) {
         Text(
             text = letter,

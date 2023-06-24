@@ -16,6 +16,7 @@ import at.ac.fhcampuswien.watchdog.viewmodels.LibraryViewModelFactory
 
 @Composable
 fun Navigation() {
+
     val db = WatchableDatabase.getDatabase(LocalContext.current)
     val repository = WatchableRepository(watchableDao = db.watchableDao())
 

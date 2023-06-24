@@ -4,28 +4,28 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import at.ac.fhcampuswien.watchdog.models.Watchable
+import androidx.room.TypeConverters
+import at.ac.fhcampuswien.watchdog.models.User
 
 @Database(
-    entities = [Watchable::class],
+    entities = [User::class],
     version = 4,
     exportSchema = false
 )
+//@TypeConverters(ColorTypeConverter::class)
+abstract class UserDatabase: RoomDatabase() {
 
-//@TypeConverters(DatabaseConverters::class)
-abstract class WatchableDatabase: RoomDatabase() {
-
-    abstract fun watchableDao(): WatchableDao
+    abstract fun userDao(): UserDao
 
     companion object {
-
         @Volatile
-        private var Instance: WatchableDatabase? = null
+        private var Instance: UserDatabase? = null
 
-        fun getDatabase(context: Context): WatchableDatabase {
+        fun getDatabase(context: Context): UserDatabase {
             return Instance ?: synchronized(this) {
-                Room.databaseBuilder(context, WatchableDatabase::class.java, "watchable_db")
+                Room.databaseBuilder(context, UserDatabase::class.java, "user_db")
                     .fallbackToDestructiveMigration()
+                    //.addTypeConverter(ColorTypeConverter())
                     .build()
                     .also {
                         Instance = it
