@@ -1,7 +1,10 @@
 package at.ac.fhcampuswien.watchdog.tmdb_api
 
 import android.util.Log
+import at.ac.fhcampuswien.watchdog.models.Genre
 import at.ac.fhcampuswien.watchdog.models.Movie
+import at.ac.fhcampuswien.watchdog.models.Season
+import at.ac.fhcampuswien.watchdog.models.Series
 import at.ac.fhcampuswien.watchdog.models.Watchable
 import at.ac.fhcampuswien.watchdog.viewmodels.HomeViewModel
 import at.ac.fhcampuswien.watchdog.youtube_api.fetchVideo
@@ -39,6 +42,21 @@ fun fetchTopRatedMovies(homeViewModel: HomeViewModel) {
     }
 }
 
+fun fetchSimilarMovies(movieID: Int, movies: MutableList<Movie>) {
+    val service = createApiService()
+    CoroutineScope(Dispatchers.IO).launch {
+        val moviesResponse = service.getSimilarMoviesReq(id = movieID, key = API_KEY)
+        if (moviesResponse.body() != null) {
+            val similarMovies = moviesResponse.body()!!.results
+            for (movie in similarMovies!!) {
+                movie.poster = IMAGE_URL + movie.poster
+                movie.widePoster = IMAGE_URL + movie.widePoster
+                movies.add(movie)
+            }
+        }
+    }
+}
+
 fun fetchTopRatedSeries(homeViewModel: HomeViewModel) {
     val service = createApiService()
     CoroutineScope(Dispatchers.IO).launch {
@@ -61,22 +79,12 @@ fun fetchSeriesAiringToday(homeViewModel: HomeViewModel) {
     }
 }
 
-private suspend fun fetchMovieDetailPoster(service: TMDbApi, movieID: Int): ImagesResponse? {
-
-    return service.getMoviePostersReq(key = API_KEY, id = movieID).body()
-}
-
-private suspend fun fetchSeriesDetailPoster(service: TMDbApi, movieID: Int): ImagesResponse? {
-
-    return service.getSeriesPostersReq(key = API_KEY, id = movieID).body()
-}
-
-fun fetchDetailPoster(watchable: Watchable) {
+private fun fetchDetailPoster(watchable: Watchable) {
     val service = createApiService()
     CoroutineScope(Dispatchers.IO).launch {
         val posters =
-            if (watchable is Movie) fetchMovieDetailPoster(service, watchable.TMDbID)
-            else fetchSeriesDetailPoster(service, watchable.TMDbID)
+            if (watchable is Movie) service.getMoviePostersReq(key = API_KEY, id = watchable.TMDbID).body()
+            else service.getSeriesPostersReq(key = API_KEY, id = watchable.TMDbID).body()
 
         if (posters != null) {
             val posterPaths = (mutableListOf <String>())
@@ -88,15 +96,16 @@ fun fetchDetailPoster(watchable: Watchable) {
     }
 }
 
-fun fetchTrailer(watchable: Watchable) {
+private fun fetchTrailer(watchable: Watchable) {
     val service = createApiService()
     CoroutineScope(Dispatchers.IO).launch {
-        val trailers = service.getMovieTrailersReq(id = watchable.TMDbID, key = API_KEY)
+        val trailers =
+            if (watchable is Movie) service.getMovieTrailersReq(id = watchable.TMDbID, key = API_KEY)
+            else service.getSeriesTrailersReq(id = watchable.TMDbID, key = API_KEY)
 
         if (trailers.body() != null) {
             for (trailer in trailers.body()!!.results) {
-                println("Name: " + trailer.name)
-                if (trailer.site == "YouTube") {
+                if (trailer.site == "YouTube" && trailer.type == "Trailer" || trailer.type == "Teaser") {
                     watchable.trailer = YOUTUBE_EMBED_URL + trailer.id
                     return@launch
                 }
@@ -105,12 +114,61 @@ fun fetchTrailer(watchable: Watchable) {
     }
 }
 
-private fun createApiService(): TMDbApi {
-    val retrofit = Retrofit.Builder()
-        .baseUrl(BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
-    return retrofit.create(TMDbApi::class.java)
+private fun fetchSeriesDetails(series: Series) {
+    val service = createApiService()
+    CoroutineScope(Dispatchers.IO).launch {
+        val detailsResponse = service.getSeriesDetails(id = series.TMDbID, key = API_KEY)
+
+        if (detailsResponse.body() != null) {
+            val details = detailsResponse.body()
+            val genres = mutableListOf<String>()
+            for (genre in details!!.genres) {
+                genres.add(genre.name)
+            }
+            series.genres = genres
+            series.endDate = details.endDate
+            series.numberOfSeasons = details.numberOfSeasons
+
+            for (i in 1..series.numberOfSeasons) {
+                val seasonResponse = service.getSeasonDetails(id = series.TMDbID, number = i, key = API_KEY)
+
+                if (seasonResponse.body() != null) {
+                    val season = seasonResponse.body()
+                    season!!.numberOfEpisodes = season.episodes.size
+                    for (episode in season.episodes) {
+                        episode.poster = IMAGE_URL + episode.poster
+                    }
+                    series.seasons.add(season)
+                }
+            }
+        }
+    }
+}
+
+private fun fetchMovieDetails(movie: Movie) {
+    val service = createApiService()
+    CoroutineScope(Dispatchers.IO).launch {
+        val detailsResponse = service.getMovieDetails(id = movie.TMDbID, key = API_KEY)
+
+        if (detailsResponse.body() != null) {
+            val details = detailsResponse.body()
+            for (genre in details!!.genres) {
+                movie.genres.add(genre.name)
+            }
+            movie.length = details.length
+        }
+    }
+}
+
+fun fetchDetails(watchable: Watchable) {
+
+    if (watchable is Movie) fetchMovieDetails(watchable)
+    else if (watchable is Series) fetchSeriesDetails(watchable)
+
+    fetchDetailPoster(watchable)
+    fetchTrailer(watchable)
+
+    watchable.hasAllDetails = true
 }
 
 private fun createMoviesFromResponse(
@@ -123,9 +181,8 @@ private fun createMoviesFromResponse(
         if (movieResponse != null) {
             for (m in movieResponse.results!!) {
                 m.poster = IMAGE_URL + m.poster
-                m.detailPosters = listOf(IMAGE_URL + m.detailPosters)
-                fetchDetailPoster(m)
-                fetchTrailer(watchable = m)
+                m.widePoster = IMAGE_URL + m.widePoster
+                m.detailPosters = listOf(m.widePoster)
 
                 if (type == 1)
                     homeViewModel.addPopularMovie(m)
@@ -148,8 +205,9 @@ private fun createSeriesFromResponse(
         if (seriesResponse != null) {
             for (s in seriesResponse.results!!) {
                 s.poster = IMAGE_URL + s.poster
-                s.detailPosters = listOf(IMAGE_URL + s.detailPosters)
-                fetchDetailPoster(s)
+                s.widePoster = IMAGE_URL + s.widePoster
+                s.detailPosters = listOf(s.widePoster)
+
                 if (type == 1)
                     homeViewModel.addTopRatedSeries(s)
                 else if (type == 2)
@@ -159,4 +217,12 @@ private fun createSeriesFromResponse(
     } else {
         Log.e("RETROFIT_ERROR", response.code().toString())
     }
+}
+
+private fun createApiService(): TMDbApi {
+    val retrofit = Retrofit.Builder()
+        .baseUrl(BASE_URL)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build()
+    return retrofit.create(TMDbApi::class.java)
 }

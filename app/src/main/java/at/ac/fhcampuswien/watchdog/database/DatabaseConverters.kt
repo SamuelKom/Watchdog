@@ -5,10 +5,18 @@ import androidx.room.TypeConverter
 class DatabaseConverters {
 
     @TypeConverter
-    fun stringToList(value: String) = value.split(",").map { it.trim() }
+    fun fromString(value: String?): MutableList<String> {
+        return value?.split(",")?.toMutableList() ?: mutableListOf()
+    }
+
+    @TypeConverter
+    fun mutableListToString(value: MutableList<String>) = value.joinToString { "," }
 
     @TypeConverter
     fun listToString(value: List<String>) = value.joinToString { "," }
+
+    @TypeConverter
+    fun stringToList(value: String) = value.split(",").map { it.trim() }
 
     //@TypeConverter
     //fun genreListToString(value: List<Genre>): String =

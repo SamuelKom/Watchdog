@@ -1,5 +1,6 @@
 package at.ac.fhcampuswien.watchdog.models
 
+import androidx.compose.runtime.mutableStateListOf
 import com.google.gson.annotations.SerializedName
 import java.util.*
 
@@ -8,15 +9,17 @@ class Series(
     val title: String = "",
 
     @SerializedName("first_air_date")
-    val date: String = "",
+    val startDate: String = "",
 
-    val episodes: Int = 0,
-    val season: Int = 0,
-    val genre: List<String> = listOf(),
-    val director: String = "",
-    val actors: String = ""
+    var endDate: String = "",
 
-) : Watchable() {
+    var numberOfSeasons: Int = 0,
+
+    var seasons: MutableList<Season> = mutableStateListOf(),
+
+    ) : Watchable() {
     override fun getWatchableTitle(): String = title
-    override fun getWatchableDate(): String = date
+    override fun getWatchableDate(): String {
+        return startDate.split('-')[0] + "-" + endDate.split('-')[0]
+    }
 }

@@ -53,7 +53,9 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -66,14 +68,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ExposedDropdownMenuBox
+import androidx.compose.material.TextField
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.viewinterop.AndroidView
+import at.ac.fhcampuswien.watchdog.models.Episode
+import at.ac.fhcampuswien.watchdog.models.Season
+import at.ac.fhcampuswien.watchdog.tmdb_api.fetchDetails
+import at.ac.fhcampuswien.watchdog.tmdb_api.fetchSimilarMovies
 import kotlin.random.Random
 
 
@@ -168,7 +180,7 @@ fun WatchableImage(
             .fillMaxWidth()
             .wrapContentHeight()
             .clip(RoundedCornerShape(12.dp))
-            .clickable { popUpShown = !popUpShown }
+            .clickable { popUpShown = true }
     )
     if (popUpShown) {
         if (watchable is Movie) {
@@ -177,7 +189,7 @@ fun WatchableImage(
                 onToggleFavouriteClicked = onToggleFavouriteClicked,
                 onTogglePlannedClicked = onTogglePlannedClicked,
                 onToggleWatchedClicked = onToggleWatchedClicked,
-                onDismissRequest = { popUpShown = !popUpShown }
+                onDismissRequest = { popUpShown = false }
             )
         } else if (watchable is Series) {
             SeriesPopUp(
@@ -185,7 +197,7 @@ fun WatchableImage(
                 onToggleFavouriteClicked = onToggleFavouriteClicked,
                 onTogglePlannedClicked = onTogglePlannedClicked,
                 onToggleWatchedClicked = onToggleWatchedClicked,
-                onDismissRequest = { popUpShown = !popUpShown }
+                onDismissRequest = { popUpShown = false }
             )
         }
     }
@@ -199,6 +211,14 @@ fun MoviePopUp(
     onTogglePlannedClicked: (Watchable) -> Unit,
     onToggleWatchedClicked: (Watchable) -> Unit
 ) {
+    if (!movie.hasAllDetails)
+        fetchDetails(movie)
+
+    val similarMovies = remember { mutableStateListOf<Movie>() }
+
+    if (similarMovies.isEmpty())
+        fetchSimilarMovies(movieID = movie.TMDbID, movies = similarMovies)
+
     WatchablePopUp(
         watchable = movie,
         onDismissRequest = onDismissRequest,
@@ -206,17 +226,7 @@ fun MoviePopUp(
         onTogglePlannedClicked = onTogglePlannedClicked,
         onToggleWatchedClicked = onToggleWatchedClicked,
         bottomContent = {
-            Text(text = "Here comes further movie description", color = Color.White)
-            Text(text = "Here comes further movie description", color = Color.White)
-            Text(text = "Here comes further movie description", color = Color.White)
-            Text(text = "Here comes further movie description", color = Color.White)
-            Text(text = "Here comes further movie description", color = Color.White)
-            Text(text = "Here comes further movie description", color = Color.White)
-            Text(text = "Here comes further movie description", color = Color.White)
-            Text(text = "Here comes further movie description", color = Color.White)
-            Text(text = "Here comes further movie description", color = Color.White)
-            Text(text = "Here comes further movie description", color = Color.White)
-            Text(text = "Here comes further movie description", color = Color.White)
+            PopUpMoviesBottomContainer(similarMovies)
         })
 }
 
@@ -228,6 +238,9 @@ fun SeriesPopUp(
     onTogglePlannedClicked: (Watchable) -> Unit,
     onToggleWatchedClicked: (Watchable) -> Unit
 ) {
+    if (!series.hasAllDetails)
+        fetchDetails(series)
+
     WatchablePopUp(
         watchable = series,
         onDismissRequest = onDismissRequest,
@@ -235,8 +248,218 @@ fun SeriesPopUp(
         onTogglePlannedClicked = onTogglePlannedClicked,
         onToggleWatchedClicked = onToggleWatchedClicked,
         bottomContent = {
-            Text(text = "Here comes further series description", color = Color.White)
+            PopUpSeriesBottomContainer(seasons = series.seasons)
         })
+}
+
+@Composable
+fun PopUpMoviesBottomContainer(movies: MutableList<Movie>) {
+
+    Text(
+        text = if (movies.isEmpty()) "No similar movies available" else "Similar",
+        fontSize = MaterialTheme.typography.h6.fontSize,
+        color = Color.White,
+        modifier = Modifier.padding(start = 20.dp, bottom = 10.dp)
+    )
+    if (movies.isEmpty()) return
+
+    /** Container for all movies */
+    Column(
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp)
+
+    ) {
+        /** For every 2 items, add a new Row */
+        for (i in 0..movies.size step 2) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+
+                /** Movie */
+                for (j in i..i + 1) {
+                    if (j >= movies.size) return
+                    Column(
+                        modifier = Modifier
+                            .width(178.dp)
+                            .height(300.dp)
+                            .background(Color(0xFF222222))
+                            .clip(RoundedCornerShape(8.dp))
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(150.dp)
+                        ) {
+                            AsyncImage(
+                                model =
+                                if(movies[j].widePoster.endsWith("original")) movies[j].poster
+                                else movies[j].widePoster,
+                                contentScale = ContentScale.Crop,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .wrapContentHeight()
+                            )
+                            /** Button to add the movie to plan to watch */
+                            var planToWatch by remember {
+                                mutableStateOf(movies[j].isPlanned)
+                            }
+                            ClickableIcon(
+                                onIconClicked = { planToWatch = !planToWatch },
+                                isActive = planToWatch,
+                                activeIcon = Icons.Default.Check,
+                                passiveIcon = Icons.Default.Add,
+                                iconColor = Color.White,
+                                horizontalAnimation = false,
+                                modifier = Modifier
+                                    .align(Alignment.BottomEnd)
+                                    .background(Color(0xCC222222))
+                                    .clip(RoundedCornerShape(5.dp))
+                            )
+                        }
+                        Column(
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(5.dp)
+                        ) {
+                            /** Title */
+                            Text(
+                                text = movies[j].title,
+                                color = Color.White,
+                                fontSize = MaterialTheme.typography.body1.fontSize,
+                                overflow = TextOverflow.Ellipsis,
+                                maxLines = 1,
+                                modifier = Modifier.padding(top = 5.dp)
+                            )
+                            /** Plot */
+                            Text(
+                                text = movies[j].plot,
+                                color = Color.LightGray,
+                                fontSize = MaterialTheme.typography.body2.fontSize,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun PopUpSeriesBottomContainer(seasons: MutableList<Season>) {
+
+    var expanded by remember { mutableStateOf(false) }
+    var seasonIndex by remember {
+        mutableStateOf(
+            if (seasons.isEmpty()) 0
+            else Random.nextInt(seasons.size)
+        )
+    }
+
+    /** First Container */
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 10.dp, end = 10.dp, bottom = 10.dp)
+    ) {
+        if (seasons.isEmpty()) {
+            Text(
+                text = "No Episodes available",
+                fontSize = MaterialTheme.typography.h6.fontSize,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+            return
+        }
+        Text(text = "Episodes", fontSize = MaterialTheme.typography.h6.fontSize)
+        Text(
+            text = "Season ${seasons[seasonIndex].number}",
+            fontSize = MaterialTheme.typography.h6.fontSize
+        )
+        /*
+        Box(modifier = Modifier.fillMaxWidth(0.5f)) {
+
+            ExposedDropdownMenuBox(
+                expanded = expanded,
+                onExpandedChange = { expanded = !expanded },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                TextField(
+                    value = "Season ${seasons[seasonIndex].number}",
+                    onValueChange = {},
+                    readOnly = true,
+                )
+
+                ExposedDropdownMenu(
+                    expanded = expanded,
+                    onDismissRequest = { expanded = false },
+                ) {
+                    for (season in seasons) {
+                        println("Creating drop down item")
+                        DropdownMenuItem(
+                            onClick = {
+                                seasonIndex = season.number - 1
+                                expanded = false
+                            }
+                        ) {
+                            Text(
+                                text = "Season ${season.number} | (${season.numberOfEpisodes})",
+                                color = Color.Black
+                            )
+                        }
+                    }
+                }
+            }
+        }*/
+    }
+
+    /** For all episodes */
+    PopUpSeriesEpisodes(episodes = seasons[seasonIndex].episodes)
+}
+
+@Composable
+fun PopUpSeriesEpisodes(episodes: List<Episode>) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 10.dp)
+    ) {
+        for (episode in episodes) {
+            Divider(
+                color = Color.DarkGray,
+                thickness = 1.dp
+            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                AsyncImage(
+                    model = episode.poster,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth(0.3f)
+                        .wrapContentHeight()
+                )
+                Column {
+                    Text(text = "${episode.number}: ${episode.name}")
+                    Text(
+                        text = episode.plot,
+                        fontSize = MaterialTheme.typography.body2.fontSize,
+                        color = Color.Gray
+                    )
+                }
+            }
+        }
+    }
 }
 
 @SuppressLint("NewApi")
@@ -249,6 +472,7 @@ fun WatchablePopUp(
     onTogglePlannedClicked: (Watchable) -> Unit,
     onToggleWatchedClicked: (Watchable) -> Unit
 ) {
+    //println("Watchable ID: " + watchable.TMDbID)
     var showBackground by remember { mutableStateOf(false) }
     var showPopup by remember { mutableStateOf(true) }
     var isExpanded by remember { mutableStateOf(false) }
@@ -316,7 +540,6 @@ fun WatchablePopUp(
                         modifier = Modifier
                             .background(Color.Black)
                             .verticalScroll(rememberScrollState())
-                        //.weight(weight = 1f, fill = false)
                     ) {
                         /** Top container with background image, close button and title */
                         PopUpTopBox(
@@ -329,7 +552,7 @@ fun WatchablePopUp(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(start = 20.dp, end = 20.dp, top = 5.dp, bottom = 30.dp)
+                                .padding(start = 20.dp, end = 20.dp, top = 0.dp, bottom = 15.dp)
                         ) {
                             /** Left column */
                             Column(
@@ -347,6 +570,7 @@ fun WatchablePopUp(
                                         activeIcon = Icons.Default.Favorite,
                                         passiveIcon = Icons.Default.FavoriteBorder,
                                         iconColor = Color(0xFFC71E1E),
+                                        horizontalAnimation = true,
                                         onIconClicked = { onToggleFavouriteClicked(watchable) }
                                     )
                                     /** Plan to watch Icon */
@@ -355,6 +579,7 @@ fun WatchablePopUp(
                                         activeIcon = Icons.Default.Check,
                                         passiveIcon = Icons.Default.Add,
                                         iconColor = Color.White,
+                                        horizontalAnimation = false,
                                         onIconClicked = { onTogglePlannedClicked(watchable) }
                                     )
                                     /** Completed Icon */
@@ -363,21 +588,12 @@ fun WatchablePopUp(
                                         activeIcon = R.drawable.watched,
                                         passiveIcon = R.drawable.not_watched,
                                         iconColor = Color.White,
+                                        horizontalAnimation = true,
                                         onIconClicked = { onToggleWatchedClicked(watchable) }
                                     )
                                 }
+                                PopUpLeftWatchableInformation(genres = watchable.genres)
 
-                                // Date, Length
-                                Text(
-                                    text = "${
-                                        watchable.getWatchableDate().split('-')[0]
-                                    }   165 min",
-                                    style = MaterialTheme.typography.body1,
-                                    color = Color.White
-                                )
-                                //Divider(
-                                //    modifier = Modifier.fillMaxWidth().height(12.dp)
-                                //)
                             }
                             /** Space between left and right column */
                             Divider(
@@ -386,18 +602,15 @@ fun WatchablePopUp(
 
                             /** Right column */
                             Column(
-                                modifier = Modifier.weight(0.25f)
+                                horizontalAlignment = Alignment.End,
+                                modifier = Modifier.weight(0.32f)
                             ) {
-                                // Cast, Genres, "Diese Serie ist schräg"
-                                Text(
-                                    text = "Cast: Johnny Depp, Angelina Jolie",
-                                    style = MaterialTheme.typography.body2,
-                                    color = Color.White
-                                )
-                                Text(
-                                    text = "Rating: ${watchable.rating}",
-                                    style = MaterialTheme.typography.body2,
-                                    color = Color.White
+                                PopUpRightWatchableInformation(
+                                    date = watchable.getWatchableDate(),
+                                    rating = watchable.rating,
+                                    length =
+                                    if (watchable is Movie) "${watchable.length}"
+                                    else ""
                                 )
                             }
                         }
@@ -423,8 +636,59 @@ fun WatchablePopUp(
 }
 
 @Composable
+fun PopUpRightWatchableInformation(date: String, length: String, rating: Double) {
+
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        /** Date */
+        Text(
+            text = date,
+            style = MaterialTheme.typography.body1,
+            color = Color.LightGray
+        )
+        /** If movie, length */
+        if (length != "0" && length.isNotEmpty()) {
+            Text(
+                text = "$length min",
+                style = MaterialTheme.typography.body1,
+                color = Color.LightGray
+            )
+        }
+    }
+    /** Rating */
+    Row(
+        horizontalArrangement = Arrangement.End,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Text(text = "Rating:", color = Color.Gray)
+        Divider(modifier = Modifier.width(8.dp))
+        Text(text = "$rating", color = Color.LightGray)
+    }
+}
+
+@Composable
+fun PopUpLeftWatchableInformation(genres: List<String>) {
+
+    /** Genres */
+    if (genres.isEmpty()) return
+    Row(horizontalArrangement = Arrangement.spacedBy(5.dp)) {
+
+        var text = ""
+        for (genre in genres) {
+            text += "$genre, "
+        }
+        text = text.removeRange(text.lastIndex - 1, text.lastIndex)
+        Text(
+            text = text,
+            style = MaterialTheme.typography.body1,
+            color = Color.LightGray
+        )
+    }
+}
+
+@Composable
 fun PopUpBackgroundImage(posters: List<String>, imageIndex: Int) {
 
+    if (posters.isEmpty()) return
     Crossfade(
         animationSpec = tween(3000),
         targetState = imageIndex,
@@ -493,21 +757,33 @@ fun YoutubeScreen(
 
 @Composable
 fun ClickableIcon(
+    modifier: Modifier = Modifier,
     isActive: Boolean,
     activeIcon: Any?,
     passiveIcon: Any?,
     iconColor: Color,
+    horizontalAnimation: Boolean = true,
     onIconClicked: () -> Unit
 ) {
     var active by remember {
         mutableStateOf(isActive)
     }
+    val transition = updateTransition(targetState = active, label = "Icon Transition")
+    val iconRotation by transition.animateFloat(
+        label = "",
+        transitionSpec = {
+            tween(durationMillis = 300)
+        }
+    ) { activity ->
+        if (activity) 0f else 180f
+    }
+
     IconButton(
         onClick = {
             active = !active
             onIconClicked()
         },
-        modifier = Modifier.size(28.dp)
+        modifier = modifier.size(28.dp)
     ) {
         if (activeIcon is Int) {
             Icon(
@@ -518,7 +794,15 @@ fun ClickableIcon(
                 ),
                 contentDescription = "Icon",
                 tint = iconColor,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier
+                    .size(28.dp)
+                    .graphicsLayer(
+                        rotationY =
+                        if (horizontalAnimation) iconRotation
+                        else 0f,
+                        rotationZ = if (!horizontalAnimation) iconRotation
+                        else 0f,
+                    )
             )
         } else if (activeIcon is ImageVector && passiveIcon is ImageVector) {
             Icon(
@@ -527,10 +811,17 @@ fun ClickableIcon(
                 else passiveIcon,
                 contentDescription = "Close Icon",
                 tint = iconColor,
-                modifier = Modifier.size(28.dp)
+                modifier = Modifier
+                    .size(28.dp)
+                    .graphicsLayer(
+                        rotationY =
+                        if (horizontalAnimation) iconRotation
+                        else 0f,
+                        rotationZ = if (!horizontalAnimation) iconRotation
+                        else 0f,
+                    )
             )
         }
-
     }
 }
 
@@ -565,8 +856,8 @@ fun PopUpTopBox(
     val mainHandler = Handler(Looper.getMainLooper())
     val updateImage = object : Runnable {
         override fun run() {
-            println("In here")
-            imageIndex = Random.nextInt(watchable.detailPosters.size)
+            if (watchable.detailPosters.isNotEmpty())
+                imageIndex = Random.nextInt(watchable.detailPosters.size)
             mainHandler.postDelayed(this, 7000)
         }
     }
@@ -593,7 +884,8 @@ fun PopUpTopBox(
         IconButton(
             onClick = {
                 visible = false
-                onDismissRequest() },
+                onDismissRequest()
+            },
             modifier = Modifier.align(Alignment.TopEnd)
         ) {
             Icon(
@@ -610,7 +902,7 @@ fun PopUpTopBox(
                 .align(Alignment.BottomStart)
                 .padding(6.dp)
                 .padding(start = 6.dp, top = 0.dp, bottom = 0.dp, end = 0.dp),
-            style = MaterialTheme.typography.h6,
+            style = MaterialTheme.typography.h5,
             color = Color.White
         )
     }
