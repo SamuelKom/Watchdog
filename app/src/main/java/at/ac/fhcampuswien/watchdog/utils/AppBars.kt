@@ -79,7 +79,7 @@ fun SideBar(
             .padding(vertical = 32.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = "Some Tile")
+        Text(text = "Some Tile", color = Color.White)
     }
     LazyColumn(modifier = modifier) {
         items(items) { item ->
@@ -91,9 +91,9 @@ fun SideBar(
                     navController.popBackStack(route = Screen.Home.route, inclusive = false)
                     navController.navigate(item.route)
                 }) {
-                Icon(imageVector = item.icon, contentDescription = "Menu Icon")
+                Icon(imageVector = item.icon, contentDescription = "Menu Icon", tint = Color.White)
                 Spacer(modifier = Modifier.width(16.dp))
-                Text(text = item.title, modifier = Modifier.weight(1f))
+                Text(text = item.title, modifier = Modifier.weight(1f), color = Color.White)
             }
         }
     }
@@ -164,7 +164,8 @@ fun SearchBar(
             ),
             singleLine = true,
             leadingIcon = {
-                IconButton(modifier = Modifier.alpha(ContentAlpha.medium), onClick = {}) {
+                IconButton(modifier = Modifier.alpha(ContentAlpha.medium),
+                    onClick = { onSearchClicked(text) }) {
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = "Search Icon",

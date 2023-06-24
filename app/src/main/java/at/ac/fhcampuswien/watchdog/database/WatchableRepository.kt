@@ -19,7 +19,7 @@ class WatchableRepository(private val watchableDao: WatchableDao) {
 
     fun getPlannedMovies() = watchableDao.getPlanned()
 
-    fun getMovieById(id: String) = watchableDao.getByUid(id)
+    fun getMovieByTMDbID(id: String) = watchableDao.getByTMDbID(id)
 
     /////////////////////////////////////////////////////
     //Series db functions
@@ -37,5 +37,5 @@ class WatchableRepository(private val watchableDao: WatchableDao) {
 
     fun getPlannedSeries() = watchableDao.getPlanned()
 
-    fun getSeriesById(id: String) = watchableDao.getByUid(id)
+    fun getSeriesByTMDbID(id: String) = watchableDao.getByTMDbID(id)
 }
