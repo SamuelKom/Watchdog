@@ -911,12 +911,21 @@ fun PopUpTopBox(
 /*
 @Composable
 fun LibraryList(
-    //call within a column
+    modifier: Modifier,
     movies: List<Movie>,
+    listTitle: String
     //series: List<Series> = getSeries(),
     //other lambda functions
 ) {
-    LazyColumn {
+    Row{
+        Text(
+            modifier = Modifier.padding(start = 12.dp),
+            text = listTitle,
+            style = MaterialTheme.typography.h6,
+            color = Color.White
+        )
+    }
+    LazyColumn( modifier = modifier) {
         items(movies) { movie ->
             //ItemCard(
             //    movie = movie,

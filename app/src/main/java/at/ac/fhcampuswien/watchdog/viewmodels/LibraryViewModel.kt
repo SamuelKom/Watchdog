@@ -1,8 +1,14 @@
 package at.ac.fhcampuswien.watchdog.viewmodels
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import at.ac.fhcampuswien.watchdog.database.WatchableRepository
 import at.ac.fhcampuswien.watchdog.models.Movie
+import at.ac.fhcampuswien.watchdog.models.Series
+import at.ac.fhcampuswien.watchdog.models.Watchable
+import at.ac.fhcampuswien.watchdog.screens.Screen
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -11,12 +17,16 @@ class LibraryViewModel(private val repository: WatchableRepository): ViewModel()
     private val _currentMovies = MutableStateFlow(listOf<Movie>())
     val currentMoviesState: StateFlow<List<Movie>> = _currentMovies.asStateFlow()
 
+    private val _currentList: MutableState<String> =
+        mutableStateOf(value = Screen.Favorites.title)
+    val currentList: State<String> = _currentList
+
     private val _favoriteMovies = MutableStateFlow(listOf<Movie>())
     private val _completeMovies = MutableStateFlow(listOf<Movie>())
     private val _plannedMovies = MutableStateFlow(listOf<Movie>())
 
     init {
-        /*
+        /*    SOLL SERIES ZSM MIT MOVIE ODER GETRENNT SEIN???
         viewModelScope.launch {
             repository.getAllFavorite().collect() { favoriteList ->
                 _favoriteMovies.value = favoriteList
@@ -33,23 +43,46 @@ class LibraryViewModel(private val repository: WatchableRepository): ViewModel()
          */
     }
 
-    suspend fun updateFav(movie: Movie) {
-        movie.isFavorite = !movie.isFavorite
-        //repository.update(movie)
-    }
-
     // get different list functions
     fun changeList(type: Int){
         when (type){
             0 -> {
+                _currentList.value = Screen.Favorites.title
                 _currentMovies.value = _favoriteMovies.value
             }
             1 -> {
+                _currentList.value = Screen.Completed.title
                 _currentMovies.value = _completeMovies.value
             }
             2 -> {
+                _currentList.value = Screen.Planned.title
                 _currentMovies.value = _plannedMovies.value
             }
+        }
+    }
+
+    suspend fun updateFavorite(watchable: Watchable) {
+        watchable.isFavorite = !watchable.isFavorite
+        if (watchable is Movie) {
+            repository.updateMovie(watchable)
+        } else if (watchable is Series) {
+            repository.updateSeries(watchable)
+        }
+    }
+    suspend fun updateComplete(watchable: Watchable) {
+        watchable.isComplete = !watchable.isComplete
+        if (watchable is Movie) {
+            repository.updateMovie(watchable)
+        } else if (watchable is Series) {
+            repository.updateSeries(watchable)
+        }
+    }
+    suspend fun updatePlanned(watchable: Watchable) {
+        watchable.isPlanned = !watchable.isPlanned
+        if (watchable is Movie) {
+            repository.updateMovie(watchable)
+        } else if (watchable is Series) {
+            repository.updateSeries(watchable)
         }
     }
 }

@@ -1,11 +1,13 @@
 package at.ac.fhcampuswien.watchdog.screens
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.ui.Modifier
@@ -35,13 +37,15 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
 
+    val searchTextState by homeViewModel.searchTextState
+
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
-            SearchBar(text = "Some text",
-                onTextChange = {},
-                onCloseClicked = {},
-                onSearchClicked = {})
+            SearchBar(text = searchTextState,
+                onTextChange = { homeViewModel.updateSearchTextState(newValue = it) },
+                onCloseClicked = { homeViewModel.updateSearchTextState(newValue = "") },
+                onSearchClicked = { Log.d("Searched Tet", it) })
         },
         drawerContent = {
             SideBar(
@@ -51,8 +55,9 @@ fun HomeScreen(
                 scaffoldState = scaffoldState
             )
         },
+        drawerBackgroundColor = Color(0xFF19191A),
         bottomBar = { BotNavBar(navController = navController, scaffoldState = scaffoldState) },
-        backgroundColor = MaterialTheme.colors.primary
+        backgroundColor = Color(0xFF19191A) //Color(R.color.grey)
     ) { padding ->
         println(padding)
         LazyColumn(

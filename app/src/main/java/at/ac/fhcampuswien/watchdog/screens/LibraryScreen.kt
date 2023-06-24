@@ -1,7 +1,6 @@
 package at.ac.fhcampuswien.watchdog.screens
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberScaffoldState
@@ -10,6 +9,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import at.ac.fhcampuswien.watchdog.utils.*
@@ -21,6 +21,8 @@ fun LibraryScreen(
     navController: NavController = rememberNavController(), libraryViewModel: LibraryViewModel
 ) {
     val currentMoviesState by libraryViewModel.currentMoviesState.collectAsState()
+    val currentList by libraryViewModel.currentList
+
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
 
@@ -28,12 +30,13 @@ fun LibraryScreen(
     Scaffold(
         scaffoldState = scaffoldState,
         drawerContent = { SideBar(modifier = Modifier, navController = navController, items = getSideScreens(), scaffoldState = scaffoldState) },
+        drawerBackgroundColor = Color(0xFF19191A),
         bottomBar = { BotNavBar(navController = navController, scaffoldState = scaffoldState) },
-        topBar = { LibraryTopBar(modifier = Modifier, libraryViewModel = libraryViewModel) }
+        topBar = { LibraryTopBar(modifier = Modifier, libraryViewModel = libraryViewModel) },
+        backgroundColor = Color(0xFF19191A)
     ) { padding ->
-        Column(modifier = Modifier.padding(padding)) {
-            //LibraryList(currentMoviesState)
-        }
+        println(padding)
+        //LibraryList(modifier = Modifier.padding(padding), movies = currentMoviesState, listTitle = currentList)
     }
 
     BackHandler {
