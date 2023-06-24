@@ -68,6 +68,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ExposedDropdownMenuBox
@@ -86,6 +87,7 @@ import at.ac.fhcampuswien.watchdog.models.Episode
 import at.ac.fhcampuswien.watchdog.models.Season
 import at.ac.fhcampuswien.watchdog.tmdb_api.fetchDetails
 import at.ac.fhcampuswien.watchdog.tmdb_api.fetchSimilarMovies
+import at.ac.fhcampuswien.watchdog.ui.theme.Shapes
 import kotlin.random.Random
 
 
@@ -121,17 +123,17 @@ fun HorizontalWatchableList(
                                 watchable = watchable,
                                 onToggleFavouriteClicked = { favouriteWatchable ->
                                     coroutineScope.launch {
-                                        viewModel.toggleFavourite(watchable = favouriteWatchable)
+                                        viewModel.updateFavorite(watchable = favouriteWatchable)
                                     }
                                 },
                                 onTogglePlannedClicked = { plannedWatchable ->
                                     coroutineScope.launch {
-                                        viewModel.togglePlanned(watchable = plannedWatchable)
+                                        viewModel.updatePlanned(watchable = plannedWatchable)
                                     }
                                 },
                                 onToggleWatchedClicked = { watchedWatchable ->
                                     coroutineScope.launch {
-                                        viewModel.toggleWatched(watchable = watchedWatchable)
+                                        viewModel.updateComplete(watchable = watchedWatchable)
                                     }
                                 })
                         }
@@ -377,10 +379,11 @@ fun PopUpSeriesBottomContainer(seasons: MutableList<Season>) {
             )
             return
         }
-        Text(text = "Episodes", fontSize = MaterialTheme.typography.h6.fontSize)
+        Text(text = "Episodes", fontSize = MaterialTheme.typography.h6.fontSize, color = Color.White)
         Text(
             text = "Season ${seasons[seasonIndex].number}",
-            fontSize = MaterialTheme.typography.h6.fontSize
+            fontSize = MaterialTheme.typography.h6.fontSize,
+            color = Color.White
         )
         /*
         Box(modifier = Modifier.fillMaxWidth(0.5f)) {
@@ -450,7 +453,7 @@ fun PopUpSeriesEpisodes(episodes: List<Episode>) {
                         .wrapContentHeight()
                 )
                 Column {
-                    Text(text = "${episode.number}: ${episode.name}")
+                    Text(text = "${episode.number}: ${episode.name}", color = Color.White)
                     Text(
                         text = episode.plot,
                         fontSize = MaterialTheme.typography.body2.fontSize,
@@ -606,7 +609,7 @@ fun WatchablePopUp(
                                 modifier = Modifier.weight(0.32f)
                             ) {
                                 PopUpRightWatchableInformation(
-                                    date = watchable.getWatchableDate(),
+                                    date = "Date", //watchable.getWatchableDate(),
                                     rating = watchable.rating,
                                     length =
                                     if (watchable is Movie) "${watchable.length}"
@@ -897,7 +900,7 @@ fun PopUpTopBox(
         }
         /** Title */
         Text(
-            text = watchable.getWatchableTitle(),
+            text = "Title", // watchable.getWatchableTitle(),
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .padding(6.dp)
@@ -908,7 +911,7 @@ fun PopUpTopBox(
     }
 }
 
-/*
+
 @Composable
 fun LibraryList(
     modifier: Modifier,
@@ -927,12 +930,13 @@ fun LibraryList(
     }
     LazyColumn( modifier = modifier) {
         items(movies) { movie ->
-            //ItemCard(
-            //    movie = movie,
-            //)
+            ItemCard(
+                movie = movie,
+            )
         }
     }
 }
+
 
 @Composable
 fun ItemCard(
@@ -961,4 +965,3 @@ fun ItemCard(
         }
     }
 }
- */

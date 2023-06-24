@@ -35,8 +35,7 @@ fun LibraryScreen(
         topBar = { LibraryTopBar(modifier = Modifier, libraryViewModel = libraryViewModel) },
         backgroundColor = Color(0xFF19191A)
     ) { padding ->
-        println(padding)
-        //LibraryList(modifier = Modifier.padding(padding), movies = currentMoviesState, listTitle = currentList)
+        LibraryList(modifier = Modifier.padding(padding), movies = currentMoviesState, listTitle = currentList)
     }
 
     BackHandler {

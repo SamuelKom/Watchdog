@@ -5,12 +5,13 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import at.ac.fhcampuswien.watchdog.models.Movie
 import at.ac.fhcampuswien.watchdog.models.Watchable
 
 
 @Database(
     entities = [Watchable::class],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 

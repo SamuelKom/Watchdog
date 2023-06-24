@@ -18,8 +18,8 @@ class Series(
     var seasons: MutableList<Season> = mutableStateListOf(),
 
     ) : Watchable() {
-    override fun getWatchableTitle(): String = title
-    override fun getWatchableDate(): String {
-        return startDate.split('-')[0] + "-" + endDate.split('-')[0]
-    }
+    //override fun getWatchableTitle(): String = title
+    //override fun getWatchableDate(): String {
+    //    return startDate.split('-')[0] + "-" + endDate.split('-')[0]
+    //}
 }

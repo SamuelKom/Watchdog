@@ -6,8 +6,8 @@ import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 import java.util.UUID
 
-@Entity(tableName = "watchable")
-abstract class Watchable(
+@Entity
+open class Watchable(
     @PrimaryKey
     val UID: String = UUID.randomUUID().toString(),
 
@@ -38,6 +38,6 @@ abstract class Watchable(
 
     var hasAllDetails: Boolean = false
     ) {
-    abstract fun getWatchableTitle() : String
-    abstract fun getWatchableDate() : String
+     //fun getWatchableTitle() : String
+     //fun getWatchableDate() : String
 }

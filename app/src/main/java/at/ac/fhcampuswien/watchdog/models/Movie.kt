@@ -1,11 +1,13 @@
 package at.ac.fhcampuswien.watchdog.models
 
 import androidx.room.Entity
+import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 import java.util.*
 
-@Entity(tableName = "movies")
+//@Entity(tableName = "movies")
 class Movie(
+
     @SerializedName("title")
     val title: String = "",
 
@@ -16,6 +18,6 @@ class Movie(
 
     // companies, actors, genres
 ) : Watchable() {
-    override fun getWatchableTitle(): String = title
-    override fun getWatchableDate(): String = date.split('-')[0]
+     fun getWatchableTitle(): String = title
+     fun getWatchableDate(): String = date.split('-')[0]
 }
