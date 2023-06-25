@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 fun LibraryScreen(
     navController: NavController = rememberNavController(), libraryViewModel: LibraryViewModel
 ) {
-    val currentMoviesState by libraryViewModel.currentMoviesState.collectAsState()
+    val currentWatchablesState by libraryViewModel.currentWatchablesState.collectAsState()
     val currentList by libraryViewModel.currentList
 
     val scope = rememberCoroutineScope()
@@ -35,7 +35,7 @@ fun LibraryScreen(
         topBar = { LibraryTopBar(modifier = Modifier, libraryViewModel = libraryViewModel) },
         backgroundColor = Color(0xFF19191A)
     ) { padding ->
-        LibraryList(modifier = Modifier.padding(padding), movies = currentMoviesState, listTitle = currentList)
+        LibraryList(modifier = Modifier.padding(padding), watchables = currentWatchablesState, listTitle = currentList)
     }
 
     BackHandler {

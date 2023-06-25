@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 interface WatchableDao {
     //CRUD
 
-    @Insert
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun add(watchable: Watchable)
 
     @Update
@@ -16,6 +16,9 @@ interface WatchableDao {
 
     @Delete
     suspend fun delete(watchable: Watchable)
+
+    @Query("DELETE FROM watchable")
+    fun nukeTable()
 
     @Query("Select * from watchable where isFavorite = 1")
     fun getFavorites(): Flow<List<Watchable>>
@@ -27,6 +30,9 @@ interface WatchableDao {
     fun getPlanned(): Flow<List<Watchable>>
 
     @Query("Select * from watchable where TMDbID=:tmdbid")
-    fun getByTMDbID(tmdbid: String): Flow<Watchable>
+    fun getByTMDbID(tmdbid: String): Flow<Watchable?>
+
+    @Query("SELECT COUNT(*) from watchable where TMDbID=:tmdbid")
+    fun isWatchableExists(tmdbid: String): Boolean
 
 }

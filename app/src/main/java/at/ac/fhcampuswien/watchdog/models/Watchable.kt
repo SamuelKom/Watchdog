@@ -6,19 +6,19 @@ import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 import java.util.UUID
 
-@Entity
+@Entity(tableName = "watchable")
 open class Watchable(
     @PrimaryKey
-    val UID: String = UUID.randomUUID().toString(),
+    var UID: String = UUID.randomUUID().toString(), //
 
     @SerializedName("id")
-    val TMDbID: Int = -1,
+    var TMDbID: Int = -1, //
 
     @SerializedName("overview")
-    val plot: String = "",
+    var plot: String = "", //
 
-    @SerializedName("vote_average")
-    val rating: Double = 0.0,
+    @SerializedName("vote_average") //
+    var rating: Double = 0.0, //
 
     @SerializedName("poster_path")
     var poster: String = "",
@@ -38,6 +38,6 @@ open class Watchable(
 
     var hasAllDetails: Boolean = false
     ) {
-     //fun getWatchableTitle() : String
-     //fun getWatchableDate() : String
+     open fun getWatchableTitle() : String = ""
+     open fun getWatchableDate() : String = ""
 }

@@ -6,12 +6,14 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import at.ac.fhcampuswien.watchdog.models.LibraryItem
 import at.ac.fhcampuswien.watchdog.models.Movie
+import at.ac.fhcampuswien.watchdog.models.Series
 import at.ac.fhcampuswien.watchdog.models.Watchable
 
 @Database(
-    entities = [Watchable::class],
-    version = 5,
+    entities = [Watchable::class, Movie::class, Series::class],
+    version = 7,
     exportSchema = false
 )
 

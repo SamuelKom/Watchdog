@@ -4,13 +4,9 @@ import android.annotation.SuppressLint
 import android.os.Looper
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.Divider
 import androidx.compose.material.Icon
@@ -56,19 +52,12 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.updateTransition
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ExposedDropdownMenuBox
@@ -143,26 +132,42 @@ fun HorizontalWatchableList(
     }
 }
 
-/*
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun LazyMovieGrid(homeViewModel: HomeViewModel, padding: PaddingValues) {
-    val movieList = homeViewModel.popularMovies //.collectAsState();
+fun LazyMovieGrid(movieList: List<Watchable>) {
+    //val movieList = homeViewModel.popularMovies //.collectAsState();
 
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(2),
         verticalItemSpacing = 4.dp,
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         content = {
-            items(movieList) { movie ->
-                WatchableImage(watchable = movie)
+            items(movieList) { watchable ->
+                WatchableImage(
+                    watchable = watchable,
+                    onToggleFavouriteClicked = { favouriteWatchable ->
+                        /*coroutineScope.launch {
+                            viewModel.updateFavorite(watchable = favouriteWatchable)
+                        }*/
+                    },
+                    onTogglePlannedClicked = { plannedWatchable ->
+                        /*coroutineScope.launch {
+                            viewModel.updatePlanned(watchable = plannedWatchable)
+                        }*/
+                    },
+                    onToggleWatchedClicked = { watchedWatchable ->
+                        /*coroutineScope.launch {
+                            viewModel.updateComplete(watchable = watchedWatchable)
+                        }*/
+                    })
             }
         },
         modifier = Modifier
             .fillMaxSize()
-            .padding(padding)
+            .padding(10.dp)
     )
-}*/
+}
 
 @Composable
 fun WatchableImage(
@@ -915,7 +920,7 @@ fun PopUpTopBox(
 @Composable
 fun LibraryList(
     modifier: Modifier,
-    movies: List<Movie>,
+    watchables: List<Watchable>,
     listTitle: String
     //series: List<Series> = getSeries(),
     //other lambda functions
@@ -928,13 +933,7 @@ fun LibraryList(
             color = Color.White
         )
     }
-    LazyColumn( modifier = modifier) {
-        items(movies) { movie ->
-            ItemCard(
-                movie = movie,
-            )
-        }
-    }
+    LazyMovieGrid(movieList = watchables)
 }
 
 

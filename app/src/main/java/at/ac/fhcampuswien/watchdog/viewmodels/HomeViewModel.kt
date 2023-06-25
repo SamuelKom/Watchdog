@@ -7,12 +7,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import at.ac.fhcampuswien.watchdog.database.WatchableRepository
+import at.ac.fhcampuswien.watchdog.models.LibraryItem
 import at.ac.fhcampuswien.watchdog.models.Movie
 import at.ac.fhcampuswien.watchdog.models.Series
 import at.ac.fhcampuswien.watchdog.models.Watchable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 class HomeViewModel(private val repository: WatchableRepository): ViewModel() {
@@ -72,36 +75,43 @@ class HomeViewModel(private val repository: WatchableRepository): ViewModel() {
 
     suspend fun updateFavorite(watchable: Watchable) {
         watchable.isFavorite = !watchable.isFavorite
-        if (watchable is Movie) {
-            repository.updateMovie(watchable)
-        } else if (watchable is Series) {
-            repository.updateSeries(watchable)
+        viewModelScope.launch(Dispatchers.IO) {
+            coroutineScope {
+                if(repository.exists(watchable.TMDbID.toString())){
+                    repository.updateWatchable(watchable)
+                }else {
+                    repository.addWatchable(watchable)
+                }
+            }
         }
     }
     suspend fun updateComplete(watchable: Watchable) {
         watchable.isComplete = !watchable.isComplete
-        if (watchable is Movie) {
-            repository.updateMovie(watchable)
-        } else if (watchable is Series) {
-            repository.updateSeries(watchable)
+        viewModelScope.launch(Dispatchers.IO) {
+            coroutineScope {
+                if(repository.exists(watchable.TMDbID.toString())){
+                    repository.updateWatchable(watchable)
+                }else {
+                    repository.addWatchable(watchable)
+                }
+            }
         }
     }
     suspend fun updatePlanned(watchable: Watchable) {
         watchable.isPlanned = !watchable.isPlanned
-        if (watchable is Movie) {
-            repository.updateMovie(watchable)
-        } else if (watchable is Series) {
-            repository.updateSeries(watchable)
+        viewModelScope.launch(Dispatchers.IO) {
+            coroutineScope {
+                if(repository.exists(watchable.TMDbID.toString())){
+                    repository.updateWatchable(watchable)
+                }else {
+                    repository.addWatchable(watchable)
+                }
+            }
         }
     }
 
-    fun checkDB(watchable: Watchable): Flow<Watchable>? {
-        if (watchable is Movie) {
-            return repository.getMovieByTMDbID(watchable.TMDbID.toString())
-        } else if (watchable is Series) {
-            return repository.getSeriesByTMDbID(watchable.TMDbID.toString())
-        }
-        return null
+    suspend fun getByTMDbID(watchable: Watchable) {
+        return repository.getByTMDbID(watchable.TMDbID.toString()).collect()
     }
 
     fun updateSearchTextState(newValue: String){
