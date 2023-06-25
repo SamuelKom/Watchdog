@@ -26,7 +26,7 @@ interface WatchableDao {
     @Query("Select * from watchable where isPlanned = 1")
     fun getPlanned(): Flow<List<Watchable>>
 
-    @Query("Select * from watchable where UID=:uid")
-    fun getByUid(uid: String): Flow<Watchable>
+    @Query("Select * from watchable where TMDbID=:tmdbid")
+    fun getByTMDbID(tmdbid: String): Flow<Watchable>
 
 }

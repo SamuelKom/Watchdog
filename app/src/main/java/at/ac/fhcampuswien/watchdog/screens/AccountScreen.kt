@@ -1,22 +1,14 @@
 package at.ac.fhcampuswien.watchdog.screens
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import at.ac.fhcampuswien.watchdog.utils.BotNavBar
@@ -33,7 +25,9 @@ fun AccountScreen(
     Scaffold(
         scaffoldState = scaffoldState,
         drawerContent = { SideBar(modifier = Modifier, navController = navController, items = getSideScreens(), scaffoldState = scaffoldState) },
-        bottomBar = { BotNavBar(navController = navController, scaffoldState = scaffoldState) }
+        drawerBackgroundColor = Color(0xFF19191A),
+        bottomBar = { BotNavBar(navController = navController, scaffoldState = scaffoldState) },
+        backgroundColor = Color(0xFF19191A)
     ) { padding ->
         Column(modifier = Modifier
             .padding(padding)
