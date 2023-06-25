@@ -1,9 +1,11 @@
 package at.ac.fhcampuswien.watchdog.models
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.room.Entity
 import com.google.gson.annotations.SerializedName
 import java.util.*
 
+@Entity(tableName = "series")
 class Series(
     @SerializedName("name")
     val title: String = "",
@@ -18,8 +20,8 @@ class Series(
     var seasons: MutableList<Season> = mutableStateListOf(),
 
     ) : Watchable() {
-    //override fun getWatchableTitle(): String = title
-    //override fun getWatchableDate(): String {
-    //    return startDate.split('-')[0] + "-" + endDate.split('-')[0]
-    //}
+    override fun getWatchableTitle(): String = title
+    override fun getWatchableDate(): String {
+        return startDate.split('-')[0] + "-" + endDate.split('-')[0]
+    }
 }

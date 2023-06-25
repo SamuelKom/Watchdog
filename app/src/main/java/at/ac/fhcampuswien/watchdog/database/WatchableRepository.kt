@@ -1,41 +1,26 @@
 package at.ac.fhcampuswien.watchdog.database
 
-import at.ac.fhcampuswien.watchdog.models.Movie
-import at.ac.fhcampuswien.watchdog.models.Series
+import at.ac.fhcampuswien.watchdog.models.LibraryItem
+import at.ac.fhcampuswien.watchdog.models.Watchable
 
 class WatchableRepository(private val watchableDao: WatchableDao) {
 
     //Movie db functions
-    suspend fun addMovie(movie: Movie) = watchableDao.add(movie)
+    suspend fun addWatchable(watchable: Watchable) = watchableDao.add(watchable)
 
-    suspend fun deleteMovie(movie: Movie) = watchableDao.delete(movie)
+    suspend fun deleteWatchable(watchable: Watchable) = watchableDao.delete(watchable)
 
-    suspend fun updateMovie(movie: Movie) = watchableDao.update(movie)
-
-
-    fun getFavoriteMovies() = watchableDao.getFavorites()
-
-    fun getCompletedMovies() = watchableDao.getCompleted()
-
-    fun getPlannedMovies() = watchableDao.getPlanned()
-
-    fun getMovieByTMDbID(id: String) = watchableDao.getByTMDbID(id)
-
-    /////////////////////////////////////////////////////
-    //Series db functions
-
-    suspend fun addSeries(series: Series) = watchableDao.add(series)
-
-    suspend fun deleteSeries(series: Series) = watchableDao.delete(series)
-
-    suspend fun updateSeries(series: Series) = watchableDao.update(series)
+    suspend fun updateWatchable(watchable: Watchable) = watchableDao.update(watchable)
 
 
-    fun getFavoriteSeries() = watchableDao.getFavorites()
+    fun getFavorites() = watchableDao.getFavorites()
 
-    fun getCompletedSeries() = watchableDao.getCompleted()
+    fun getCompleted() = watchableDao.getCompleted()
 
-    fun getPlannedSeries() = watchableDao.getPlanned()
+    fun getPlanned() = watchableDao.getPlanned()
 
-    fun getSeriesByTMDbID(id: String) = watchableDao.getByTMDbID(id)
+    fun getByTMDbID(id: String) = watchableDao.getByTMDbID(id)
+
+    fun exists(id: String) = watchableDao.isWatchableExists(id)
+
 }

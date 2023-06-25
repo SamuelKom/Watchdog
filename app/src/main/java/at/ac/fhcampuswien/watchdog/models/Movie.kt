@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 import java.util.*
 
-//@Entity(tableName = "movies")
+@Entity(tableName = "movies")
 class Movie(
 
     @SerializedName("title")
@@ -18,6 +18,6 @@ class Movie(
 
     // companies, actors, genres
 ) : Watchable() {
-     fun getWatchableTitle(): String = title
-     fun getWatchableDate(): String = date.split('-')[0]
+    override fun getWatchableTitle(): String = title
+    override fun getWatchableDate(): String = date.split('-')[0]
 }
