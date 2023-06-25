@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import at.ac.fhcampuswien.watchdog.R
 import at.ac.fhcampuswien.watchdog.database.UserDatabase
 import at.ac.fhcampuswien.watchdog.database.UserRepository
@@ -41,23 +42,23 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun CheckLogin() {
+fun CheckLogin(navController: NavHostController, profileViewModel: ProfileViewModel) {
     val sharedPrefs = LocalContext.current.getSharedPreferences("my_prefs", Context.MODE_PRIVATE)
     //sharedPrefs.edit().putString("user", "Max").apply()
-    sharedPrefs.edit().remove("user").apply()
+    //sharedPrefs.edit().remove("user").apply()
     val user = sharedPrefs.getString("user", null)
 
-    if (user == null) {
+    println(user)
 
-        ProfileScreen()
+    if (user == null) {
+        ProfileScreen(navController)
     } else {
-        println(user)
-        Navigation()
+        navController.popBackStack(route = Screen.Home.route, inclusive = false)
     }
 }
 
 @Composable
-fun ProfileScreen() {
+fun ProfileScreen(navController: NavHostController) {
     val db = UserDatabase.getDatabase(LocalContext.current)
     val repository = UserRepository(userDao = db.userDao())
 
@@ -108,7 +109,7 @@ fun ProfileScreen() {
 
             LoginButton(onClick = { login.value = true })
 
-            NewProfileButton()
+            NewProfileButton(navController)
         }
     }
 }
@@ -155,13 +156,6 @@ fun ProfileRow(users: List<User>) {
         }
     )
 
-    LaunchedEffect(rotationState) {
-        if (rotationState == targetRotationValue) {
-            if (rotationState > 0) centeredUserIdx -= 1
-            else if (rotationState < 0) centeredUserIdx += 1
-        }
-    }
-
     var targetOffsetValue by remember { mutableStateOf(0f) }
     val offsetState by animateFloatAsState(
         targetValue = targetOffsetValue,
@@ -186,11 +180,23 @@ fun ProfileRow(users: List<User>) {
 
     val coroutineScope = rememberCoroutineScope()
 
+    LaunchedEffect(rotationState) {
+        if (rotationState == targetRotationValue) {
+            if (rotationState > 0) {
+                centeredUserIdx -= 1
+            } else if (rotationState < 0) {
+                centeredUserIdx += 1
+            }
+
+            targetOffsetValue = 0f
+            targetRotationValue = 0f
+            targetSizeDiffValue = 0f
+        }
+    }
+
     LaunchedEffect(centeredUserIdx) {
         //offsetMiddleState.animateTo(0f, animationSpec = TweenSpec(durationMillis = 0))
-        targetOffsetValue = 0f
-        targetRotationValue = 0f
-        targetSizeDiffValue = 0f
+
     }
 
     if (users.isNotEmpty()) {
@@ -305,14 +311,16 @@ fun ProfileSelection(
             CircleWithLetter(
                 letter = right.name.substring(0, 1),
                 color = Color(right.color),
-                brush = Brush.horizontalGradient(
-                    colors = listOf(
-                        Color(right.color),
-                        Color.Transparent
-                    ),
-                    startX = 0f,
-                    endX = 120f
-                )
+                brush = if (rotation > -45 && rotation < 45) {
+                    Brush.horizontalGradient(
+                        colors = listOf(
+                            Color(right.color),
+                            Color.Transparent
+                        ),
+                        startX = 0f,
+                        endX = 120f
+                    )
+                } else null
             )
         }
     }
@@ -381,7 +389,7 @@ fun LoginButton(onClick: () -> Unit) {
 }
 
 @Composable
-fun NewProfileButton() {
+fun NewProfileButton(navController: NavHostController) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -391,7 +399,7 @@ fun NewProfileButton() {
         // Content of the screen
 
         IconButton(
-            onClick = { /* Button click action */ },
+            onClick = { navController.navigate(route = Screen.AddProfile.route) },
             modifier = Modifier
                 .background(
                     color = Color.Black,
@@ -406,7 +414,7 @@ fun NewProfileButton() {
         ) {
             Row(
                 modifier = Modifier.padding(start = 10.dp, end = 10.dp),
-                horizontalArrangement = Arrangement.spacedBy(7.dp)
+                horizontalArrangement = Arrangement.spacedBy(7.dp),
             ) {
                 Icon(
                     imageVector = Icons.Default.Add,

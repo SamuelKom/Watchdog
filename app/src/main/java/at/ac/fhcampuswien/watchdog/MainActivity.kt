@@ -10,6 +10,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import at.ac.fhcampuswien.watchdog.navigation.Navigation
 import at.ac.fhcampuswien.watchdog.screens.CheckLogin
 import at.ac.fhcampuswien.watchdog.ui.theme.WatchdogTheme
 
@@ -22,7 +23,7 @@ class MainActivity : ComponentActivity() {
                 Surface(
                     modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background,
                 ) {
-                    CheckLogin()
+                    Navigation()
                 }
             }
         }
