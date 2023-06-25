@@ -1,14 +1,23 @@
 package at.ac.fhcampuswien.watchdog.screens
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
-import androidx.compose.material.rememberScaffoldState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
+import androidx.compose.material.Icon
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import at.ac.fhcampuswien.watchdog.utils.BotNavBar
@@ -29,19 +38,20 @@ fun AccountScreen(
         bottomBar = { BotNavBar(navController = navController, scaffoldState = scaffoldState) },
         backgroundColor = Color(0xFF19191A)
     ) { padding ->
-        Column(modifier = Modifier
-            .padding(padding)
-            .fillMaxSize()
-            .background(Color.Black),
+        Column(
+            modifier = Modifier
+                .padding(padding)
+                .fillMaxSize()
+                .background(Color.Black),
             verticalArrangement = Arrangement.spacedBy(7.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
 
-        ) {
+            ) {
             Spacer(modifier = Modifier.height(25.dp))
 
             CircleWithLetter(letter = "M", color = Color.Blue)
 
-            Row (
+            Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(start = 40.dp)
             ) {
@@ -62,7 +72,7 @@ fun AccountScreen(
                 }
             }
 
-            Row (
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 20.dp),
@@ -75,7 +85,7 @@ fun AccountScreen(
 
             Spacer(modifier = Modifier.height(18.dp))
 
-            var genres: List<String> = listOf("Action", "Comedy", "Horror")
+            val genres: List<String> = listOf("Action", "Comedy", "Horror")
             FavouriteGenresRow(genres = genres)
         }
     }
@@ -162,7 +172,7 @@ fun TextColumn(number: Int, label: String) {
 @Composable
 fun CircleWithLetter(letter: String, color: Color, brush: Brush? = null) {
 
-    var modifier: Modifier = if (brush != null) Modifier.background(brush, shape = CircleShape)
+    val modifier: Modifier = if (brush != null) Modifier.background(brush, shape = CircleShape)
     else Modifier.background(color, shape = CircleShape)
 
     Box(
