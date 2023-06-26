@@ -66,7 +66,7 @@ fun Navigation() {
                 LibraryScreen(navController = navController, libraryViewModel = libraryViewModel, logout = logout)
             }
             composable(route = Screen.Account.route) {
-                AccountScreen(navController = navController, profileViewModel = profileViewModel, logout = logout, userId = user!!)
+                AccountScreen(navController = navController, profileViewModel = profileViewModel, logout = logout, userId = user!!, libraryViewModel = libraryViewModel)
             }
             composable(route = Screen.Settings.route) {
                 SettingsScreen(navController = navController, homeViewModel = homeViewModel, logout = logout)
