@@ -50,9 +50,9 @@ sealed class Screen (
         icon = Icons.Default.Favorite
     )
 
-    object Completed : Screen(
-        route = "completed",
-        title = "Completed",
+    object Watched : Screen(
+        route = "watched",
+        title = "Watched",
         icon = Icons.Default.Check
     )
 

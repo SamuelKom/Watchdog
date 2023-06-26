@@ -1,26 +1,27 @@
 package at.ac.fhcampuswien.watchdog.database
 
 import at.ac.fhcampuswien.watchdog.models.LibraryItem
-import at.ac.fhcampuswien.watchdog.models.Watchable
 
-class WatchableRepository(private val watchableDao: WatchableDao) {
+class WatchableRepository(private val libraryDao: LibraryDao) {
 
     //Movie db functions
-    suspend fun addWatchable(watchable: Watchable) = watchableDao.add(watchable)
+    suspend fun addLibraryItem(libraryItem: LibraryItem) = libraryDao.add(libraryItem)
 
-    suspend fun deleteWatchable(watchable: Watchable) = watchableDao.delete(watchable)
+    suspend fun deleteLibraryItem(libraryItem: LibraryItem) = libraryDao.delete(libraryItem)
 
-    suspend fun updateWatchable(watchable: Watchable) = watchableDao.update(watchable)
+    suspend fun updateLibraryItem(libraryItem: LibraryItem) = libraryDao.update(libraryItem)
 
 
-    fun getFavorites() = watchableDao.getFavorites()
+    fun getFavorites() = libraryDao.getFavorites()
 
-    fun getCompleted() = watchableDao.getCompleted()
+    fun getCompleted() = libraryDao.getWatched()
 
-    fun getPlanned() = watchableDao.getPlanned()
+    fun getPlanned() = libraryDao.getPlanned()
 
-    fun getByTMDbID(id: String) = watchableDao.getByTMDbID(id)
+    fun getByID(id: String) = libraryDao.getByID(id)
 
-    fun exists(id: String) = watchableDao.isWatchableExists(id)
+    fun exists(id: String) = libraryDao.isExists(id)
+
+    suspend fun cleanTable() = libraryDao.cleanTable()
 
 }

@@ -13,12 +13,9 @@ import at.ac.fhcampuswien.watchdog.models.Series
 import at.ac.fhcampuswien.watchdog.models.Watchable
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
-class HomeViewModel(private val repository: WatchableRepository): ViewModel() {
+class HomeViewModel(private val repository: WatchableRepository) : ViewModel() {
 
     private val _searchTextState: MutableState<String> =
         mutableStateOf(value = "")
@@ -50,71 +47,111 @@ class HomeViewModel(private val repository: WatchableRepository): ViewModel() {
     }
 
     fun addPopularMovie(m: Movie) {
-        if (_popularM.firstOrNull{ it.UID == m.UID }  == null) {
+        if (_popularM.firstOrNull { it.UID == m.UID } == null) {
             _popularM.add(m)
         }
     }
 
     fun addTopRatedMovie(m: Movie) {
-        if (_topRatedM.firstOrNull{ it.UID == m.UID }  == null) {
+        if (_topRatedM.firstOrNull { it.UID == m.UID } == null) {
             _topRatedM.add(m)
         }
     }
 
     fun addTopRatedSeries(s: Series) {
-        if (_topRatedS.firstOrNull{ it.UID == s.UID }  == null) {
+        if (_topRatedS.firstOrNull { it.UID == s.UID } == null) {
             _topRatedS.add(s)
         }
     }
 
     fun addSeriesAiringToday(s: Series) {
-        if (_airingTodayS.firstOrNull{ it.UID == s.UID }  == null) {
+        if (_airingTodayS.firstOrNull { it.UID == s.UID } == null) {
             _airingTodayS.add(s)
         }
     }
 
     suspend fun updateFavorite(watchable: Watchable) {
         watchable.isFavorite = !watchable.isFavorite
+        val item = LibraryItem(
+            TMDbID = watchable.TMDbID,
+            isMovie = watchable is Movie,
+            poster = watchable.poster,
+            isFavorite = watchable.isFavorite,
+            isWatched = watchable.isWatched,
+            isPlanned = watchable.isPlanned
+        )
         viewModelScope.launch(Dispatchers.IO) {
             coroutineScope {
-                if(repository.exists(watchable.TMDbID.toString())){
-                    repository.updateWatchable(watchable)
-                }else {
-                    repository.addWatchable(watchable)
+                if (repository.exists(watchable.TMDbID.toString())) {
+                    repository.updateLibraryItem(item)
+                    repository.cleanTable()
+                } else {
+                    repository.addLibraryItem(item)
                 }
             }
         }
     }
+
     suspend fun updateComplete(watchable: Watchable) {
-        watchable.isComplete = !watchable.isComplete
+        watchable.isWatched = !watchable.isWatched
+        val item = LibraryItem(
+            TMDbID = watchable.TMDbID,
+            isMovie = watchable is Movie,
+            poster = watchable.poster,
+            isFavorite = watchable.isFavorite,
+            isWatched = watchable.isWatched,
+            isPlanned = watchable.isPlanned
+        )
         viewModelScope.launch(Dispatchers.IO) {
             coroutineScope {
-                if(repository.exists(watchable.TMDbID.toString())){
-                    repository.updateWatchable(watchable)
-                }else {
-                    repository.addWatchable(watchable)
+                if (repository.exists(watchable.TMDbID.toString())) {
+                    repository.updateLibraryItem(item)
+                    repository.cleanTable()
+                } else {
+                    repository.addLibraryItem(item)
                 }
             }
         }
     }
+
     suspend fun updatePlanned(watchable: Watchable) {
         watchable.isPlanned = !watchable.isPlanned
+        val item = LibraryItem(
+            TMDbID = watchable.TMDbID,
+            isMovie = watchable is Movie,
+            poster = watchable.poster,
+            isFavorite = watchable.isFavorite,
+            isWatched = watchable.isWatched,
+            isPlanned = watchable.isPlanned
+        )
         viewModelScope.launch(Dispatchers.IO) {
             coroutineScope {
-                if(repository.exists(watchable.TMDbID.toString())){
-                    repository.updateWatchable(watchable)
-                }else {
-                    repository.addWatchable(watchable)
+                if (repository.exists(watchable.TMDbID.toString())) {
+                    repository.updateLibraryItem(item)
+                    repository.cleanTable()
+                } else {
+                    repository.addLibraryItem(item)
                 }
             }
         }
     }
 
-    suspend fun getByTMDbID(watchable: Watchable) {
-        return repository.getByTMDbID(watchable.TMDbID.toString()).collect()
+    fun changeTags(watchable: Watchable){
+        viewModelScope.launch(Dispatchers.IO) {
+            if (repository.exists(watchable.TMDbID.toString())) {
+                repository.getByID(watchable.TMDbID.toString()).collect {item ->
+                    item?.let {// Necessary do not delete or remove
+                        watchable.isFavorite = it.isFavorite
+                        watchable.isWatched = it.isWatched
+                        watchable.isPlanned = it.isPlanned
+                    }
+
+                }
+            }
+        }
     }
 
-    fun updateSearchTextState(newValue: String){
+    fun updateSearchTextState(newValue: String) {
         _searchTextState.value = newValue
     }
 }

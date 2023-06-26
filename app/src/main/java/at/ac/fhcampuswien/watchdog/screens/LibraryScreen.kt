@@ -1,7 +1,6 @@
 package at.ac.fhcampuswien.watchdog.screens
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
@@ -35,7 +34,8 @@ fun LibraryScreen(
         topBar = { LibraryTopBar(modifier = Modifier, libraryViewModel = libraryViewModel) },
         backgroundColor = Color(0xFF19191A)
     ) { padding ->
-        LibraryList(modifier = Modifier.padding(padding), watchables = currentWatchablesState, listTitle = currentList)
+        println(padding)
+        LibraryWatchableList(listTitle = currentList, watchableList = currentWatchablesState, viewModel = libraryViewModel)
     }
 
     BackHandler {

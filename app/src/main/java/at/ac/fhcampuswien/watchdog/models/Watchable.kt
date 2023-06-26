@@ -1,14 +1,12 @@
 package at.ac.fhcampuswien.watchdog.models
 
-import androidx.compose.runtime.mutableStateListOf
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import androidx.compose.runtime.*
 import com.google.gson.annotations.SerializedName
 import java.util.UUID
 
-@Entity(tableName = "watchable")
+//@Entity(tableName = "watchable")
 open class Watchable(
-    @PrimaryKey
+    //@PrimaryKey
     var UID: String = UUID.randomUUID().toString(), //
 
     @SerializedName("id")
@@ -32,12 +30,15 @@ open class Watchable(
 
     var trailer: String = "",
 
-    var isFavorite: Boolean = false,
-    var isComplete: Boolean = false,
-    var isPlanned: Boolean = false,
+    initialIsFavorite: Boolean = false,
+    initialIsWatched: Boolean = false,
+    initialIsPlanned: Boolean = false,
 
     var hasAllDetails: Boolean = false
     ) {
+    var isFavorite by mutableStateOf(initialIsFavorite)
+    var isWatched by mutableStateOf(initialIsWatched)
+    var isPlanned by mutableStateOf(initialIsPlanned)
      open fun getWatchableTitle() : String = ""
      open fun getWatchableDate() : String = ""
 }
