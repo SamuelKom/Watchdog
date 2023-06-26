@@ -1,6 +1,7 @@
 package at.ac.fhcampuswien.watchdog.navigation
 
-import androidx.compose.runtime.Composable
+import android.content.Context
+import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -10,7 +11,6 @@ import androidx.navigation.compose.rememberNavController
 import at.ac.fhcampuswien.watchdog.database.LibraryDatabase
 import at.ac.fhcampuswien.watchdog.database.UserDatabase
 import at.ac.fhcampuswien.watchdog.database.UserRepository
-import at.ac.fhcampuswien.watchdog.database.WatchableDatabase
 import at.ac.fhcampuswien.watchdog.database.WatchableRepository
 import at.ac.fhcampuswien.watchdog.screens.*
 import at.ac.fhcampuswien.watchdog.viewmodels.*
@@ -35,7 +35,9 @@ fun Navigation() {
         val user = sharedPrefs.getString("user", null)
         println(user)
 
-        val db = LibraryDatabase.getDatabase(LocalContext.current, user!!)
+        val context: Context = LocalContext.current
+
+        val db = remember { LibraryDatabase.getDatabase(context, user!!) }
         val repository = WatchableRepository(libraryDao = db.watchableDao())
 
         val userDB = UserDatabase.getDatabase(LocalContext.current)
@@ -50,6 +52,8 @@ fun Navigation() {
         val libraryViewModel: LibraryViewModel =
             viewModel(factory = libraryFactory) // home screen viewmodel
 
+        println(libraryViewModel.favoriteWatchables.toString())
+
         val profileViewModel: ProfileViewModel = viewModel(factory = profileFactory)
 
         val navController = rememberNavController()
@@ -62,7 +66,7 @@ fun Navigation() {
                 LibraryScreen(navController = navController, libraryViewModel = libraryViewModel, logout = logout)
             }
             composable(route = Screen.Account.route) {
-                AccountScreen(navController = navController, profileViewModel = profileViewModel, logout = logout, userId = user)
+                AccountScreen(navController = navController, profileViewModel = profileViewModel, logout = logout, userId = user!!)
             }
             composable(route = Screen.Settings.route) {
                 SettingsScreen(navController = navController, homeViewModel = homeViewModel, logout = logout)

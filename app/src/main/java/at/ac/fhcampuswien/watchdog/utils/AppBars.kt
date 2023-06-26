@@ -133,7 +133,7 @@ fun LibraryTopBar(modifier: Modifier, libraryViewModel: LibraryViewModel) {
 
             Column {
                 //Icon(imageVector = Screen.Completed.icon, contentDescription = Screen.Completed.title)
-                Text(text = Screen.Completed.title, Modifier.clickable {
+                Text(text = Screen.Watched.title, Modifier.clickable {
                     libraryViewModel.changeList(1)
                 })
             }

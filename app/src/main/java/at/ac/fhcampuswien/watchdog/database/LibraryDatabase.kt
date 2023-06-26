@@ -1,6 +1,7 @@
 package at.ac.fhcampuswien.watchdog.database
 
 import android.content.Context
+import androidx.compose.ui.platform.LocalContext
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
@@ -22,13 +23,12 @@ abstract class LibraryDatabase: RoomDatabase() {
     abstract fun watchableDao(): LibraryDao
 
     companion object {
-
         @Volatile
         private var instances = mutableMapOf<String, LibraryDatabase?>()
 
         fun getDatabase(context: Context, userId: String): LibraryDatabase {
-            return Instance[úserId] ?: synchronized(this) {
-                Room.databaseBuilder(context, LibraryDatabase::class.java, "watchable_db")
+            return instances[userId] ?: synchronized(this) {
+                Room.databaseBuilder(context.applicationContext, LibraryDatabase::class.java, "watchable_db$userId")
                     .fallbackToDestructiveMigration()
                     .build()
                     .also {
