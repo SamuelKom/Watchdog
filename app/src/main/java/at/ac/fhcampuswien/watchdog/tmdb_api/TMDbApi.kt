@@ -27,8 +27,8 @@ interface TMDbApi {
     @GET("/3/movie/{id}/images")
     suspend fun getMoviePostersReq(@Path("id") id: Int, @Query("api_key") key: String): Response<ImagesResponse>
 
-    @GET("/3/movie/{id}/recommendations")
-    suspend fun getMovieRecommendationsReq(@Path("id") id: Int, @Query("api_key") key: String): Response<MovieResponse>
+    @GET("/3/discover/movie")
+    suspend fun getMoviesByPropertiesReq(@Query("with_genres") genres: String, @Query("api_key") key: String): Response<MovieResponse>
 
     @GET("/3/search/movie")
     suspend fun getMoviesBySearchStringReq(@Query("query") query: String, @Query("api_key") key: String): Response<MovieResponse>

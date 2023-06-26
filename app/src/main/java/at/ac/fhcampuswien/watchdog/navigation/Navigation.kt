@@ -1,7 +1,9 @@
 package at.ac.fhcampuswien.watchdog.navigation
 
 import android.content.Context
+import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.*
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -32,13 +34,13 @@ fun Navigation() {
         sharedPrefs.edit().remove("user").apply()
     }
 
+    println("Up here")
     if (loggedIn) {
-        val user = sharedPrefs.getString("user", null)
-        println(user)
+        val userID = sharedPrefs.getString("user", null)
 
         val context: Context = LocalContext.current
 
-        val db = remember { LibraryDatabase.getDatabase(context, user!!) }
+        val db = remember { LibraryDatabase.getDatabase(context, userID!!) }
         val repository = WatchableRepository(libraryDao = db.watchableDao())
 
         val userDB = UserDatabase.getDatabase(LocalContext.current)
@@ -49,27 +51,37 @@ fun Navigation() {
 
         val profileFactory = ProfileViewModelFactory(userRepository)
 
-        val homeViewModel: HomeViewModel = viewModel(factory = homeFactory) // home screen viewmodel
-        val libraryViewModel: LibraryViewModel =
-            viewModel(factory = libraryFactory) // home screen viewmodel
-
-
         val profileViewModel: ProfileViewModel = viewModel(factory = profileFactory)
+        println("User ID: " + userID)
+        if (profileViewModel.getUserById(userID!!) == null) {
+            println("In here")
+            logout()
+            return
+        }
+
+        val homeViewModel: HomeViewModel = viewModel(factory = homeFactory) // home screen viewmodel
+        val libraryViewModel: LibraryViewModel = viewModel(factory = libraryFactory) // home screen viewmodel
+
+        println("User: " + profileViewModel.getUserById(userID))
 
         val navController = rememberNavController()
 
         NavHost(navController = navController, startDestination = Screen.Home.route) {
             composable(route = Screen.Home.route) {
-                HomeScreen(navController = navController, homeViewModel = homeViewModel, logout = logout)
+                HomeScreen(
+                    navController = navController,
+                    homeViewModel = homeViewModel,
+                    user = profileViewModel.getUserById(userID)!!,
+                    logout = logout)
             }
             composable(route = Screen.Library.route) {
-                LibraryScreen(navController = navController, libraryViewModel = libraryViewModel, logout = logout)
+                LibraryScreen(navController = navController, libraryViewModel = libraryViewModel, color = Color(profileViewModel.getUserById(userID)!!.color), logout = logout)
             }
             composable(route = Screen.Account.route) {
-                AccountScreen(navController = navController, profileViewModel = profileViewModel, logout = logout, userId = user!!)
+                AccountScreen(navController = navController, logout = logout, user = profileViewModel.getUserById(userID)!!, profileViewModel = profileViewModel, libraryViewModel = libraryViewModel)
             }
             composable(route = Screen.Settings.route) {
-                SettingsScreen(navController = navController, homeViewModel = homeViewModel, logout = logout)
+                SettingsScreen(navController = navController, homeViewModel = homeViewModel, logout = logout, user = profileViewModel.getUserById(userID)!!)
             }
             composable(route = Screen.AddProfile.route) {
                 EditProfileScreen(

@@ -26,7 +26,6 @@ import androidx.compose.ui.window.Popup
 import at.ac.fhcampuswien.watchdog.models.Movie
 import at.ac.fhcampuswien.watchdog.models.Series
 import at.ac.fhcampuswien.watchdog.models.Watchable
-import at.ac.fhcampuswien.watchdog.viewmodels.HomeViewModel
 import coil.compose.AsyncImage
 import at.ac.fhcampuswien.watchdog.R
 import coil.compose.rememberAsyncImagePainter
@@ -66,6 +65,7 @@ import at.ac.fhcampuswien.watchdog.models.Season
 import at.ac.fhcampuswien.watchdog.tmdb_api.fetchDetails
 import at.ac.fhcampuswien.watchdog.tmdb_api.fetchSimilarMovies
 import at.ac.fhcampuswien.watchdog.ui.theme.Shapes
+import at.ac.fhcampuswien.watchdog.viewmodels.HomeViewModel
 import at.ac.fhcampuswien.watchdog.viewmodels.LibraryViewModel
 import kotlin.random.Random
 
@@ -107,17 +107,8 @@ fun HorizontalWatchableList(
 }
 
 @Composable
-fun LibraryWatchableList(
-    listTitle: String, watchableList: MutableList<Watchable>, viewModel: LibraryViewModel
-) {
-    println("In LibraryWatchableList")
+fun LibraryWatchableList(watchableList: MutableList<Watchable>, viewModel: LibraryViewModel) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp), content = {
-        Text(
-            modifier = Modifier.padding(start = 12.dp),
-            text = listTitle,
-            style = MaterialTheme.typography.h6,
-            color = Color.White
-        )
         LazyGrid(list = watchableList, libraryViewModel = viewModel)
     })
 }
@@ -333,9 +324,7 @@ fun PopUpSeriesBottomContainer(seasons: MutableList<Season>) {
     var expanded by remember { mutableStateOf(false) }
     val rotation by animateFloatAsState(if (expanded) 180f else 0f)
 
-    var seasonIndex by remember {
-        mutableStateOf( 0 )
-    }
+    var seasonIndex by remember { mutableStateOf( 0 ) }
 
     /** First Container */
     Row(
@@ -553,12 +542,12 @@ fun WatchablePopUp(
                     ) {
                         /** Top container with background image, close button and title */
                         PopUpTopBox(
-                            watchable = watchable
-                        ) {
-                            showPopup = !showPopup
-                            showBackground = !showBackground
-                            onDismissRequest()
-                        }
+                            watchable = watchable,
+                            onDismissRequest = {
+                                showPopup = !showPopup
+                                showBackground = !showBackground
+                            }
+                        )
                         Row(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             modifier = Modifier

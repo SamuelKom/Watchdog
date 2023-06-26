@@ -22,6 +22,7 @@ const val IMAGE_URL = "https://image.tmdb.org/t/p/original"
 const val YOUTUBE_EMBED_URL = "https://www.youtube.com/embed/"
 
 fun fetchPopularMovies(homeViewModel: HomeViewModel) {
+    fetchMoviesByGenre(listOf("Action", "Animation"), mutableListOf())
     val service = createApiService()
     CoroutineScope(Dispatchers.IO).launch {
         createMoviesFromResponse(
@@ -80,16 +81,14 @@ fun fetchSeriesAiringToday(homeViewModel: HomeViewModel) {
     }
 }
 
-fun fetchGenresByWatchableType(type: String = "movie", genreNames: MutableList<String> = mutableListOf(), genreNumbers: MutableList<Int> = mutableListOf()) {
+fun fetchGenresByWatchableType(type: String = "movie", genres: MutableList<Genre> = mutableListOf()) {
     val service = createApiService()
     CoroutineScope(Dispatchers.IO).launch {
         val genresResponse = service.getGenresByWatchableType(watchableType = type, key = API_KEY)
 
         if (genresResponse.body() != null) {
             for (genre in genresResponse.body()!!.genres) {
-                println("Genre: " + genre.name)
-                genreNames.add(genre.name)
-                genreNumbers.add(genre.id)
+                genres.add(genre)
             }
         }
     }
@@ -104,6 +103,26 @@ fun fetchMoviesByGenres(homeViewModel: HomeViewModel, genres: List<Int>) {
             homeViewModel = homeViewModel,
             type = 3
         )
+    }
+}
+
+fun fetchMoviesByGenre(genres: List<String>, movies: MutableList<Movie>) {
+    val service = createApiService()
+    CoroutineScope(Dispatchers.IO).launch {
+        var genreString = ""
+        for (genre in genres) {
+            genreString += "$genre,"
+        }
+        genreString.removeRange(genreString.lastIndex - 2, genreString.lastIndex)
+        println("Genres: " + genreString)
+        val movieResponse = service.getMoviesByPropertiesReq(genres = genreString, key = API_KEY)
+
+        if (movieResponse.body() != null) {
+            for (movie in movieResponse.body()!!.results!!) {
+                println("Genre: " + movie.title)
+                movies.add(movie)
+            }
+        }
     }
 }
 

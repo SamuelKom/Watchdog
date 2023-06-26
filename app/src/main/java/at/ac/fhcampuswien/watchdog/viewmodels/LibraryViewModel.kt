@@ -24,9 +24,7 @@ class LibraryViewModel(private val repository: WatchableRepository): ViewModel()
     val currentList: State<String> = _currentList
 
     private val _favorites = mutableStateListOf<Watchable>()
-
     private val _watched = mutableStateListOf<Watchable>()
-
     private val _planned = mutableStateListOf<Watchable>()
 
 
@@ -34,7 +32,6 @@ class LibraryViewModel(private val repository: WatchableRepository): ViewModel()
         viewModelScope.launch {
             repository.getFavorites().collect { favoriteList ->
                 fetchWatchablesByLibraryItems(favoriteList, _favorites)
-                println("updating fav")
             }
         }
         viewModelScope.launch {

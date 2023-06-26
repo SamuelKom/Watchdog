@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
+import at.ac.fhcampuswien.watchdog.models.Genre
 import at.ac.fhcampuswien.watchdog.models.User
 import at.ac.fhcampuswien.watchdog.tmdb_api.fetchGenresByWatchableType
 import at.ac.fhcampuswien.watchdog.viewmodels.ProfileViewModel
@@ -68,10 +69,18 @@ fun EditProfileScreen(
         val selectedColor: MutableState<Color?> = remember {
             mutableStateOf(user?.color?.let { Color(it) })
         }
-        val genreList = remember { mutableStateListOf<String>() }
+        val genreList = remember { mutableStateListOf<Genre>() }
         val selectedItems = remember { mutableStateListOf<String>() }
 
-        fetchGenresByWatchableType("movie", genreList)
+        if (user != null) {
+            selectedItems.clear()
+            for (genre in user.favGenres.drop(1).dropLast(1).split(",")) {
+                selectedItems.add(genre)
+            }
+        }
+
+        if (genreList.isEmpty())
+            fetchGenresByWatchableType("movie", genreList)
 
         NameRow(textFieldValue = textFieldValue,
             onChange = { newValue -> textFieldValue = newValue})
@@ -150,7 +159,7 @@ fun ColorRow(selectedColor: Color?, onChange: (Color) -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             val colors: List<Color> = listOf(
-                Color.Red, Color.Blue, Color.Green, Color.Magenta, Color.Yellow
+                Color(0xFF64070A), Color(0xFF393D55), Color(0xFF1A203F), Color(0xFF680A79), Color(0xFFB39E1B)
             )
 
             for (color in colors) {
@@ -181,7 +190,7 @@ fun ColorBox(color: Color, modifier: Modifier, selected: Boolean, onClick: () ->
 
 @Composable
 fun GenreSelection(
-    genres: List<String>,
+    genres: List<Genre>,
     selectedItems: List<String>,
     addItem: (String) -> Unit,
     removeItem: (String) -> Unit
@@ -203,47 +212,31 @@ fun GenreSelection(
                     modifier = Modifier
                         .fillMaxWidth()
                 ) {
-                    /*Checkbox(
-                        checked = selectedItems.contains(item),
-                        onCheckedChange = { isChecked ->
-                            if (isChecked) {
-                                if (selectedItems.size < 3) {
-                                    addItem(item)
-                                }
-                            } else {
-                                removeItem(item)
-                            }
-                        },
-                        modifier = Modifier.background(Color.DarkGray).padding(0.dp),
-                        colors = CheckboxDefaults.colors(
-                            checkmarkColor = Color.White
-                        )
-                    )*/
                     Card(
                         modifier = Modifier
                     ) {
                         Box(
                             modifier = Modifier
                                 .size(30.dp)
-                                .background(if (selectedItems.contains(item)) Color.White else Color.Gray)
+                                .background(if (selectedItems.contains(item.name)) Color.White else Color.Gray)
                                 .clickable{
-                                    if (!selectedItems.contains(item)) {
+                                    if (!selectedItems.contains(item.name)) {
                                         if (selectedItems.size < 3) {
-                                            addItem(item)
+                                            addItem(item.name)
                                         }
                                     } else {
-                                        removeItem(item)
+                                        removeItem(item.name)
                                     }},
                             contentAlignment = Alignment.Center
                         ) {
-                            if(selectedItems.contains(item))
+                            if(selectedItems.contains(item.name))
                                 Icon(Icons.Default.Check, contentDescription = "", tint = Color.Black)
                         }
                     }
                     Spacer(modifier = Modifier.width(8.dp))
 
                     Text(
-                        text = item,
+                        text = item.name,
                         color = Color.White,
                         fontSize = 15.sp,
                         textAlign = TextAlign.Center

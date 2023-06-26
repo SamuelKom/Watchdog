@@ -1,5 +1,7 @@
 package at.ac.fhcampuswien.watchdog.utils
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
@@ -20,7 +22,10 @@ import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
@@ -29,13 +34,14 @@ import at.ac.fhcampuswien.watchdog.viewmodels.LibraryViewModel
 import kotlinx.coroutines.launch
 
 @Composable
-fun BotNavBar(navController: NavController, scaffoldState: ScaffoldState) {
+fun BotNavBar(navController: NavController, scaffoldState: ScaffoldState, color: Color) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
     val scope = rememberCoroutineScope()
 
     BottomAppBar(
-        contentColor = Color.White
+        backgroundColor = color,
+        contentColor = getNegativeColor(color = color)
     ) {
         BottomNavigationItem(label = { Text(text = Screen.Profile.title) }, icon = {
             Icon(
@@ -100,7 +106,11 @@ fun SideBar(
                     logout()
                 }
             ) {
-                Icon(imageVector = Screen.ProfileSelection.icon, contentDescription = "Menu Icon", tint = Color.Red)
+                Icon(
+                    imageVector = Screen.ProfileSelection.icon,
+                    contentDescription = "Menu Icon",
+                    tint = Color.Red
+                )
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(text = "Logout", modifier = Modifier.weight(1f), color = Color.Red)
             }
@@ -108,42 +118,75 @@ fun SideBar(
     }
 }
 
+
 @Composable
 fun LibraryTopBar(modifier: Modifier, libraryViewModel: LibraryViewModel) {
+
+    var selectedList by remember { mutableStateOf(0) }
     TopAppBar(
         elevation = AppBarDefaults.TopAppBarElevation
     ) {
         Row(
-            modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly
+            modifier = modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
                 //Icon(imageVector = Screen.Favorites.icon, contentDescription = Screen.Favorites.title)
-                Text(text = Screen.Favorites.title, Modifier.clickable {
-                    libraryViewModel.changeList(Screen.Favorites.title)
-                })
+                Text(
+                    text = Screen.Favorites.title,
+                    modifier = Modifier
+                        .clickable {
+                            selectedList = 0
+                            libraryViewModel.changeList(Screen.Favorites.title)
+                        },
+                    color =
+                    if (selectedList == 0) Color.White
+                    else Color.Gray
+                )
 
             }
-
             Column {
                 //Icon(imageVector = Screen.Completed.icon, contentDescription = Screen.Completed.title)
-                Text(text = Screen.Watched.title, Modifier.clickable {
-                    libraryViewModel.changeList(Screen.Watched.title)
-                })
+                Text(
+                    text = Screen.Watched.title,
+                    Modifier
+                        .clickable {
+                            selectedList = 1
+                            libraryViewModel.changeList(Screen.Watched.title)
+                        },
+                    color =
+                    if (selectedList == 1) Color.White
+                    else Color.Gray
+                )
             }
-
             Column {
                 //Icon(imageVector = Screen.Planned.icon, contentDescription = Screen.Planned.title)
-                Text(text = Screen.Planned.title, Modifier.clickable {
-                    libraryViewModel.changeList(Screen.Planned.title)
-                })
+                Text(
+                    text = Screen.Planned.title,
+                    Modifier
+                        .clickable {
+                            selectedList = 2
+                            libraryViewModel.changeList(Screen.Planned.title)
+                        },
+                    color =
+                    if (selectedList == 2) Color.White
+                    else Color.Gray
+                )
             }
         }
     }
 }
 
+fun getNegativeColor(color: Color): Color {
+
+    return if (color == Color(0xFFB39E1B)) Color.Black else Color.White
+}
+
 @Composable
 fun SearchBar(
     text: String,
+    color: Color,
     onTextChange: (String) -> Unit,
     onCloseClicked: () -> Unit,
     onSearchClicked: (String) -> Unit
@@ -153,7 +196,7 @@ fun SearchBar(
             .fillMaxWidth()
             .height(56.dp),
         elevation = AppBarDefaults.TopAppBarElevation,
-        color = MaterialTheme.colors.primary
+        color = color //MaterialTheme.colors.primary
     ) {
         TextField(
             modifier = Modifier.fillMaxWidth(),
@@ -165,7 +208,7 @@ fun SearchBar(
                 Text(
                     modifier = Modifier.alpha(ContentAlpha.medium),
                     text = "Search",
-                    color = Color.White
+                    color = getNegativeColor(color = color)
                 )
             },
             textStyle = TextStyle(
@@ -178,7 +221,7 @@ fun SearchBar(
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = "Search Icon",
-                        tint = Color.White
+                        tint = getNegativeColor(color = color)
                     )
                 }
             },
@@ -193,7 +236,7 @@ fun SearchBar(
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Close Icon",
-                        tint = Color.White
+                        tint = getNegativeColor(color = color)
                     )
                 }
             },

@@ -10,6 +10,7 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -22,11 +23,14 @@ import androidx.compose.material.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import at.ac.fhcampuswien.watchdog.models.Movie
+import at.ac.fhcampuswien.watchdog.models.User
 import at.ac.fhcampuswien.watchdog.tmdb_api.*
 import at.ac.fhcampuswien.watchdog.utils.BotNavBar
 import at.ac.fhcampuswien.watchdog.utils.HorizontalWatchableList
@@ -34,6 +38,7 @@ import at.ac.fhcampuswien.watchdog.utils.LazyGrid
 import at.ac.fhcampuswien.watchdog.utils.SearchBar
 import at.ac.fhcampuswien.watchdog.utils.SideBar
 import at.ac.fhcampuswien.watchdog.viewmodels.HomeViewModel
+import at.ac.fhcampuswien.watchdog.viewmodels.LibraryViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -41,6 +46,7 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     navController: NavController = rememberNavController(),
     homeViewModel: HomeViewModel,
+    user: User,
     logout: () -> Unit
 ) {
     if (homeViewModel.popularMovies.isEmpty()) fetchPopularMovies(homeViewModel = homeViewModel)
@@ -58,7 +64,9 @@ fun HomeScreen(
     Scaffold(
         scaffoldState = scaffoldState,
         topBar = {
-            SearchBar(text = searchTextState,
+            SearchBar(
+                text = searchTextState,
+                color = Color(user.color),
                 onTextChange = {
                     homeViewModel.updateSearchTextState(newValue = it)
                     fetchMoviesBySearchString(query = searchTextState, movies = searchedMovies)
@@ -76,8 +84,8 @@ fun HomeScreen(
             )
         },
         drawerBackgroundColor = Color(0xFF19191A),
-        bottomBar = { BotNavBar(navController = navController, scaffoldState = scaffoldState) },
-        backgroundColor = Color(0xFF19191A) //Color(R.color.grey)
+        bottomBar = { BotNavBar(navController = navController, scaffoldState = scaffoldState, color = Color(user.color)) },
+        backgroundColor = Color(0xFF19191A)
     ) { padding ->
         println(padding)
         if (searchTextState.isEmpty()) {
@@ -138,27 +146,27 @@ fun HomeScreen(
             navController.popBackStack()
         }
     }
-    SlideInPopup()
+    SlideInPopup(user)
 }
 
 @Composable
-fun SlideInPopup() {
-    var popupVisible by remember { mutableStateOf(true) }
+fun SlideInPopup(user: User) {
 
+    var popupVisible by remember { mutableStateOf(false) }
     val transition = updateTransition(targetState = popupVisible, label = "Popup Transition")
     val slideOffsetX by transition.animateFloat(
         label = "Slide Offset X",
         transitionSpec = {
-            tween(durationMillis = 3000)
+            tween(durationMillis = 15000)
         }
     ) { isVisible ->
-        if (isVisible) -120f else -1000f
+        if (isVisible) 800f else -300f
     }
 
     LaunchedEffect(popupVisible) {
-        if (popupVisible) {
-            delay(8000) // Wait for 2 seconds
-            popupVisible = false // Hide the popup after 2 seconds
+        if (!popupVisible) {
+            delay(2000)
+            popupVisible = true
         }
     }
 
@@ -167,22 +175,22 @@ fun SlideInPopup() {
             .fillMaxSize()
             .background(Color.Transparent)
             .padding(16.dp)
+            .offset(x = slideOffsetX.dp)
     ) {
-        Box(
+        Column(
             modifier = Modifier
-                .fillMaxWidth(0.2f)
-                .fillMaxHeight(0.1f)
-                .background(Color.Black.copy(alpha = 0.5f))
-                .offset(x = slideOffsetX.dp)
-                .align(Alignment.BottomStart)
+                .background(Color(user.color).copy(alpha = 0.9f))
+                .offset(y = 30.dp)
+                .align(Alignment.TopStart)
+                .padding(15.dp)
         ) {
 
             // Content of the popup
             Text(
-                text = "Popup Content",
-                modifier = Modifier.align(Alignment.Center),
+                text = "Hello ${user.name}",
                 color = Color.White,
-                fontSize = 20.sp
+                fontSize = 20.sp,
+               modifier = Modifier.offset(y = (-30).dp)
             )
         }
     }
