@@ -1,33 +1,31 @@
 package at.ac.fhcampuswien.watchdog.database
 
-import DatabaseConverters
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import at.ac.fhcampuswien.watchdog.models.LibraryItem
+import at.ac.fhcampuswien.watchdog.models.User
 
 @Database(
-    entities = [LibraryItem::class],
-    version = 8,
+    entities = [User::class],
+    version = 4,
     exportSchema = false
 )
+//@TypeConverters(ColorTypeConverter::class)
+abstract class UserDatabase: RoomDatabase() {
 
-@TypeConverters(DatabaseConverters::class)
-abstract class LibraryDatabase: RoomDatabase() {
-
-    abstract fun watchableDao(): LibraryDao
+    abstract fun userDao(): UserDao
 
     companion object {
-
         @Volatile
-        private var Instance: LibraryDatabase? = null
+        private var Instance: UserDatabase? = null
 
-        fun getDatabase(context: Context): LibraryDatabase {
+        fun getDatabase(context: Context): UserDatabase {
             return Instance ?: synchronized(this) {
-                Room.databaseBuilder(context, LibraryDatabase::class.java, "library_db")
+                Room.databaseBuilder(context, UserDatabase::class.java, "user_db")
                     .fallbackToDestructiveMigration()
+                    //.addTypeConverter(ColorTypeConverter())
                     .build()
                     .also {
                         Instance = it

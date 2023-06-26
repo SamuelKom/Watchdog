@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import at.ac.fhcampuswien.watchdog.navigation.Navigation
+import at.ac.fhcampuswien.watchdog.screens.CheckLogin
 import at.ac.fhcampuswien.watchdog.ui.theme.WatchdogTheme
 
 class MainActivity : ComponentActivity() {

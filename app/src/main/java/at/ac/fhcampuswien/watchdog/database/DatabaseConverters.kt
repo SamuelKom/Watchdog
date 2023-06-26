@@ -1,5 +1,3 @@
-package at.ac.fhcampuswien.watchdog.database
-
 import androidx.room.TypeConverter
 import at.ac.fhcampuswien.watchdog.models.Season
 import com.google.gson.Gson

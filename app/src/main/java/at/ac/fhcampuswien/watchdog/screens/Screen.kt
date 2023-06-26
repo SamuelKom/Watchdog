@@ -10,6 +10,11 @@ sealed class Screen (
      val title: String,
      val icon: ImageVector
 ) {
+    object ProfileSelection : Screen (
+        route = "profileSelection",
+        title = "ProfileSelection",
+        icon = Icons.Default.Person
+    )
 
     // Bottom Nav Bar
     object Profile : Screen(
@@ -66,6 +71,12 @@ sealed class Screen (
     object Add : Screen(
         route = "add",
         title = "Add",
+        icon = Icons.Default.Add
+    )
+
+    object AddProfile : Screen(
+        route = "addProfile",
+        title = "AddProfile",
         icon = Icons.Default.Add
     )
 }
