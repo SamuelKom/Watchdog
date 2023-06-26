@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -19,13 +20,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import at.ac.fhcampuswien.watchdog.models.User
 import at.ac.fhcampuswien.watchdog.utils.BotNavBar
 import at.ac.fhcampuswien.watchdog.utils.SideBar
 import at.ac.fhcampuswien.watchdog.viewmodels.ProfileViewModel
@@ -84,6 +83,21 @@ fun AccountScreen(
                         tint = Color.Gray
                     )
                 }
+
+                IconButton(
+                    onClick = {
+                        scope.launch {
+                            profileViewModel.delete(user)
+                            logout()
+                        }},
+                    modifier = Modifier.padding(1.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Edit",
+                        tint = Color.Gray
+                    )
+                }
             }
 
             Row(
@@ -100,7 +114,6 @@ fun AccountScreen(
             Spacer(modifier = Modifier.height(18.dp))
 
             //val genres: List<String> = listOf("Action", "Comedy", "Horror")
-            println(user.favGenres)
             FavouriteGenresRow(genres = user.favGenres.drop(1).dropLast(1).split(","))
         }
     }
@@ -128,17 +141,6 @@ fun FavouriteGenresRow(genres: List<String>) {
                 color = Color.White,
                 fontSize = 19.sp
             )
-
-            IconButton(
-                onClick = { },
-                modifier = Modifier.padding(5.dp).size(17.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Edit,
-                    contentDescription = "Edit",
-                    tint = Color.Gray
-                )
-            }
         }
 
         Row(

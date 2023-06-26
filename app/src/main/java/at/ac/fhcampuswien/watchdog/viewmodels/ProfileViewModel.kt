@@ -52,4 +52,8 @@ class ProfileViewModel(private val repository: UserRepository): ViewModel() {
             "black"
         )
     }
+
+    suspend fun delete(user: User) {
+        repository.deleteUser(user)
+    }
 }
