@@ -5,7 +5,7 @@ import androidx.room.TypeConverter
 class GenreTypeConverter {
     // String to String
     @TypeConverter
-    fun toList(value: String): List<String> {
+    fun genreStringtoList(value: String): List<String> {
         return value.split(",").map { it.trim() }
     }
 

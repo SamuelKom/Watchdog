@@ -1,6 +1,5 @@
 package at.ac.fhcampuswien.watchdog.screens
 
-import android.content.Context
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -23,94 +22,77 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import at.ac.fhcampuswien.watchdog.R
-import at.ac.fhcampuswien.watchdog.database.UserDatabase
-import at.ac.fhcampuswien.watchdog.database.UserRepository
 import at.ac.fhcampuswien.watchdog.models.User
-import at.ac.fhcampuswien.watchdog.navigation.Navigation
 import at.ac.fhcampuswien.watchdog.viewmodels.ProfileViewModel
-import at.ac.fhcampuswien.watchdog.viewmodels.ProfileViewModelFactory
 import kotlinx.coroutines.launch
 
 
 @Composable
-fun CheckLogin(navController: NavHostController, profileViewModel: ProfileViewModel) {
-    val sharedPrefs = LocalContext.current.getSharedPreferences("my_prefs", Context.MODE_PRIVATE)
-    //sharedPrefs.edit().putString("user", "Max").apply()
-    //sharedPrefs.edit().remove("user").apply()
+fun CheckLogin(navController: NavHostController, profileViewModel: ProfileViewModel, login: (String) -> Unit) {
+    /*val sharedPrefs = LocalContext.current.getSharedPreferences("my_prefs", Context.MODE_PRIVATE)
     val user = sharedPrefs.getString("user", null)
 
-    println(user)
-
-    if (user == null) {
-        ProfileScreen(navController)
-    } else {
+    if (user == null) {*/
+    ProfileSelectionScreen(
+        profileViewModel = profileViewModel,
+        navController = navController,
+        login = login)
+    /*} else {
         navController.popBackStack(route = Screen.Home.route, inclusive = false)
-    }
+    }*/
 }
 
 @Composable
-fun ProfileScreen(navController: NavHostController) {
-    val db = UserDatabase.getDatabase(LocalContext.current)
-    val repository = UserRepository(userDao = db.userDao())
+fun ProfileSelectionScreen(
+    profileViewModel: ProfileViewModel,
+    navController: NavHostController,
+    login: (String) -> Unit
+) {
+    /*val coroutineScope = rememberCoroutineScope()
 
-    val profileFactory = ProfileViewModelFactory(repository)
-    val profileViewModel: ProfileViewModel = viewModel(factory = profileFactory)
-
-    profileViewModel.addUser(
-        User(
-            name = "Oliver",
-            color = Color.Blue.toArgb(),
-            favGenres = listOf("Anime", "Thriller").toString(),
-            theme = "black"
-        )
-    )
-    profileViewModel.addUser(
-        User(
-            name = "Niklas",
-            color = Color.Red.toArgb(),
-            favGenres = listOf("Action", "Comedy").toString(),
-            theme = "black"
-        )
-    )
-
-    profileViewModel.addUser(
-        User(
-            name = "Samuel",
-            color = Color.LightGray.toArgb(),
-            favGenres = listOf("Action", "Comedy").toString(),
-            theme = "black"
-        )
-    )
-
-    val login = remember { mutableStateOf(false) }
-
-    if (login.value) {
-        Navigation()
-    } else {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            ProfileSelectionHeading()
-
-            ProfileRow(users = profileViewModel.users)
-
-            LoginButton(onClick = { login.value = true })
-
-            NewProfileButton(navController)
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            profileViewModel.addUser(
+                User(
+                    name = "Oliver",
+                    color = Color.Blue.toArgb(),
+                    favGenres = listOf("Anime", "Thriller").toString(),
+                    theme = "black"
+                )
+            )
         }
+    }*/
+
+    val centeredUserIdx: MutableState<Int> = remember { mutableStateOf(0) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        ProfileSelectionHeading()
+
+        val users by profileViewModel.users.collectAsState()
+
+        ProfileRow(users = users,
+            centeredUserIdx = centeredUserIdx.value,
+            centeredChanged = { idx -> centeredUserIdx.value = idx }
+        )
+
+        LoginButton(onClick = {
+            login(profileViewModel.getUserIdByIdx(centeredUserIdx.value)!!)
+            //navController.navigate(route = Screen.Home.route)
+        })
+
+        NewProfileButton( onCreateProfileClicked = { navController.navigate(route = Screen.AddProfile.route) })
     }
 }
 
@@ -139,10 +121,9 @@ fun ProfileSelectionHeading() {
 }
 
 @Composable
-fun ProfileRow(users: List<User>) {
-    var centeredUserIdx by remember { mutableStateOf(0) }
+fun ProfileRow(users: List<User>, centeredUserIdx: Int, centeredChanged: (Int) -> Unit) {
 
-    val animationDurationMillis: Int = 500
+    val animationDurationMillis = 500
 
     //var rotationState = remember { Animatable(0f) }
     var targetRotationValue by remember { mutableStateOf(0f) }
@@ -183,9 +164,9 @@ fun ProfileRow(users: List<User>) {
     LaunchedEffect(rotationState) {
         if (rotationState == targetRotationValue) {
             if (rotationState > 0) {
-                centeredUserIdx -= 1
+                centeredChanged(centeredUserIdx - 1)
             } else if (rotationState < 0) {
-                centeredUserIdx += 1
+                centeredChanged(centeredUserIdx + 1)
             }
 
             targetOffsetValue = 0f
@@ -287,14 +268,16 @@ fun ProfileSelection(
             CircleWithLetter(
                 letter = left.name.substring(0, 1),
                 color = Color(left.color),
-                brush = Brush.horizontalGradient(
-                    colors = listOf(
-                        Color(left.color),
-                        Color.Transparent
-                    ),
-                    startX = 100f,
-                    endX = 0f
-                )
+                brush = if (rotation < 45) {
+                    Brush.horizontalGradient(
+                        colors = listOf(
+                            Color(left.color),
+                            Color.Transparent
+                        ),
+                        startX = 100f,
+                        endX = 0f
+                    )
+                } else null
             )
         }
     }
@@ -311,7 +294,7 @@ fun ProfileSelection(
             CircleWithLetter(
                 letter = right.name.substring(0, 1),
                 color = Color(right.color),
-                brush = if (rotation > -45 && rotation < 45) {
+                brush = if (rotation > -45) {
                     Brush.horizontalGradient(
                         colors = listOf(
                             Color(right.color),
@@ -389,7 +372,7 @@ fun LoginButton(onClick: () -> Unit) {
 }
 
 @Composable
-fun NewProfileButton(navController: NavHostController) {
+fun NewProfileButton(onCreateProfileClicked: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -399,7 +382,7 @@ fun NewProfileButton(navController: NavHostController) {
         // Content of the screen
 
         IconButton(
-            onClick = { navController.navigate(route = Screen.AddProfile.route) },
+            onClick = { onCreateProfileClicked() },
             modifier = Modifier
                 .background(
                     color = Color.Black,

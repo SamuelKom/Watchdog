@@ -12,7 +12,7 @@ sealed class Screen (
 ) {
     object ProfileSelection : Screen (
         route = "profileSelection",
-        title = "ProfileSelection",
+        title = "Logout",
         icon = Icons.Default.Person
     )
 

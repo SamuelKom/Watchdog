@@ -22,10 +22,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.compose.rememberNavController
+import at.ac.fhcampuswien.watchdog.database.UserDatabase
+import at.ac.fhcampuswien.watchdog.database.UserRepository
 import at.ac.fhcampuswien.watchdog.navigation.Navigation
 import at.ac.fhcampuswien.watchdog.screens.CheckLogin
 import at.ac.fhcampuswien.watchdog.ui.theme.WatchdogTheme
+import at.ac.fhcampuswien.watchdog.viewmodels.HomeViewModel
+import at.ac.fhcampuswien.watchdog.viewmodels.LibraryViewModel
+import at.ac.fhcampuswien.watchdog.viewmodels.ProfileViewModel
+import at.ac.fhcampuswien.watchdog.viewmodels.ProfileViewModelFactory
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -81,7 +90,9 @@ fun MyUI() {
         onExpandedChange = {
             expanded = !expanded
         },
-        modifier = Modifier.background(Color.Green).fillMaxWidth(0.25f)
+        modifier = Modifier
+            .background(Color.Green)
+            .fillMaxWidth(0.25f)
     ) {
         // text field
         TextField(

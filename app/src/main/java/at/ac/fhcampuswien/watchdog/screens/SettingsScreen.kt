@@ -19,13 +19,15 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen(
-    navController: NavController = rememberNavController(), homeViewModel: HomeViewModel
+    navController: NavController = rememberNavController(),
+    homeViewModel: HomeViewModel,
+    logout: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
     Scaffold(
         scaffoldState = scaffoldState,
-        drawerContent = { SideBar(modifier = Modifier, navController = navController, items = getSideScreens(), scaffoldState = scaffoldState) },
+        drawerContent = { SideBar(modifier = Modifier, navController = navController, items = getSideScreens(), scaffoldState = scaffoldState, logout = logout) },
         drawerBackgroundColor = Color(0xFF19191A),
         bottomBar = { BotNavBar(navController = navController, scaffoldState = scaffoldState) },
         backgroundColor = Color(0xFF19191A)

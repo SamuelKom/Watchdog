@@ -22,18 +22,24 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import at.ac.fhcampuswien.watchdog.utils.BotNavBar
 import at.ac.fhcampuswien.watchdog.utils.SideBar
-import at.ac.fhcampuswien.watchdog.viewmodels.HomeViewModel
+import at.ac.fhcampuswien.watchdog.viewmodels.ProfileViewModel
 import kotlinx.coroutines.launch
 
 @Composable
 fun AccountScreen(
-    navController: NavController = rememberNavController(), homeViewModel: HomeViewModel
+    navController: NavController = rememberNavController(),
+    logout: () -> Unit,
+    profileViewModel: ProfileViewModel,
+    userId: String
 ) {
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
+
+    val user = profileViewModel.getUserById(userId)!!
+
     Scaffold(
         scaffoldState = scaffoldState,
-        drawerContent = { SideBar(modifier = Modifier, navController = navController, items = getSideScreens(), scaffoldState = scaffoldState) },
+        drawerContent = { SideBar(modifier = Modifier, navController = navController, items = getSideScreens(), scaffoldState = scaffoldState, logout = logout) },
         drawerBackgroundColor = Color(0xFF19191A),
         bottomBar = { BotNavBar(navController = navController, scaffoldState = scaffoldState) },
         backgroundColor = Color(0xFF19191A)
@@ -49,14 +55,14 @@ fun AccountScreen(
             ) {
             Spacer(modifier = Modifier.height(25.dp))
 
-            CircleWithLetter(letter = "M", color = Color.Blue)
+            CircleWithLetter(letter = user.name.substring(0, 1), color = Color(user.color))
 
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.padding(start = 40.dp)
             ) {
                 Text(
-                    text = "Maximilian",
+                    text = user.name,
                     color = Color.White,
                     fontSize = 25.sp
                 )
@@ -85,8 +91,8 @@ fun AccountScreen(
 
             Spacer(modifier = Modifier.height(18.dp))
 
-            val genres: List<String> = listOf("Action", "Comedy", "Horror")
-            FavouriteGenresRow(genres = genres)
+            //val genres: List<String> = listOf("Action", "Comedy", "Horror")
+            FavouriteGenresRow(genres = user.favGenres.drop(1).dropLast(1).split(",").map { it.trim() })
         }
     }
 

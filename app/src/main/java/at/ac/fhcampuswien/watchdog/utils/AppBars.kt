@@ -36,7 +36,7 @@ fun BotNavBar(navController: NavController, scaffoldState: ScaffoldState) {
 
     BottomAppBar(
         contentColor = Color.White
-    ){
+    ) {
         BottomNavigationItem(label = { Text(text = Screen.Profile.title) }, icon = {
             Icon(
                 imageVector = Screen.Profile.icon, contentDescription = "Navigation Icon"
@@ -70,7 +70,8 @@ fun SideBar(
     modifier: Modifier,
     navController: NavController,
     items: List<Screen>,
-    scaffoldState: ScaffoldState
+    scaffoldState: ScaffoldState,
+    logout: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     Box(
@@ -79,7 +80,7 @@ fun SideBar(
             .padding(vertical = 32.dp),
         contentAlignment = Alignment.Center
     ) {
-        Text(text = "Some Tile", color = Color.White)
+        Text(text = "Account", color = Color.White)
     }
     LazyColumn(modifier = modifier) {
         items(items) { item ->
@@ -90,10 +91,25 @@ fun SideBar(
                     scope.launch { scaffoldState.drawerState.close() }
                     navController.popBackStack(route = Screen.Home.route, inclusive = false)
                     navController.navigate(item.route)
-                }) {
+                }
+            ) {
                 Icon(imageVector = item.icon, contentDescription = "Menu Icon", tint = Color.White)
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(text = item.title, modifier = Modifier.weight(1f), color = Color.White)
+            }
+        }
+
+        items(listOf(Unit)) {
+            Row(modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+                .clickable {
+                    scope.launch { scaffoldState.drawerState.close() }
+                    logout()
+                }
+            ) {
+                Spacer(modifier = Modifier.width(16.dp))
+                Text(text = "Logout", modifier = Modifier.weight(1f), color = Color.Red)
             }
         }
     }
@@ -109,7 +125,7 @@ fun LibraryTopBar(modifier: Modifier, libraryViewModel: LibraryViewModel) {
         ) {
             Column {
                 //Icon(imageVector = Screen.Favorites.icon, contentDescription = Screen.Favorites.title)
-                Text(text = Screen.Favorites.title, Modifier.clickable{
+                Text(text = Screen.Favorites.title, Modifier.clickable {
                     libraryViewModel.changeList(0)
                 })
 
@@ -117,14 +133,14 @@ fun LibraryTopBar(modifier: Modifier, libraryViewModel: LibraryViewModel) {
 
             Column {
                 //Icon(imageVector = Screen.Completed.icon, contentDescription = Screen.Completed.title)
-                Text(text = Screen.Completed.title, Modifier.clickable{
+                Text(text = Screen.Completed.title, Modifier.clickable {
                     libraryViewModel.changeList(1)
                 })
             }
 
             Column {
                 //Icon(imageVector = Screen.Planned.icon, contentDescription = Screen.Planned.title)
-                Text(text = Screen.Planned.title, Modifier.clickable{
+                Text(text = Screen.Planned.title, Modifier.clickable {
                     libraryViewModel.changeList(2)
                 })
             }
@@ -193,7 +209,7 @@ fun SearchBar(
             ),
             keyboardActions = KeyboardActions(onSearch = {
                 onSearchClicked(text)
-                }
+            }
             ),
             colors = TextFieldDefaults.textFieldColors(
                 backgroundColor = Color.Transparent,

@@ -18,7 +18,9 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun LibraryScreen(
-    navController: NavController = rememberNavController(), libraryViewModel: LibraryViewModel
+    navController: NavController = rememberNavController(),
+    libraryViewModel: LibraryViewModel,
+    logout: () -> Unit
 ) {
     val currentWatchablesState by libraryViewModel.currentWatchablesState.collectAsState()
     val currentList by libraryViewModel.currentList
@@ -29,7 +31,7 @@ fun LibraryScreen(
 
     Scaffold(
         scaffoldState = scaffoldState,
-        drawerContent = { SideBar(modifier = Modifier, navController = navController, items = getSideScreens(), scaffoldState = scaffoldState) },
+        drawerContent = { SideBar(modifier = Modifier, navController = navController, items = getSideScreens(), scaffoldState = scaffoldState, logout = logout) },
         drawerBackgroundColor = Color(0xFF19191A),
         bottomBar = { BotNavBar(navController = navController, scaffoldState = scaffoldState) },
         topBar = { LibraryTopBar(modifier = Modifier, libraryViewModel = libraryViewModel) },

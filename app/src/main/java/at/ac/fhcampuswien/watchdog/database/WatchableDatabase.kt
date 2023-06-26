@@ -1,12 +1,11 @@
 package at.ac.fhcampuswien.watchdog.database
 
-import DatabaseConverters
+import android.app.Activity
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import at.ac.fhcampuswien.watchdog.models.LibraryItem
 import at.ac.fhcampuswien.watchdog.models.Movie
 import at.ac.fhcampuswien.watchdog.models.Series
 import at.ac.fhcampuswien.watchdog.models.Watchable
@@ -23,17 +22,21 @@ abstract class WatchableDatabase: RoomDatabase() {
     abstract fun watchableDao(): WatchableDao
 
     companion object {
-
         @Volatile
-        private var Instance: WatchableDatabase? = null
+        private var instances = mutableMapOf<String, WatchableDatabase?>()
 
-        fun getDatabase(context: Context): WatchableDatabase {
-            return Instance ?: synchronized(this) {
-                Room.databaseBuilder(context, WatchableDatabase::class.java, "watchable_db")
+        fun getDatabase(activity: Activity, userId: String): WatchableDatabase {
+            println(instances[userId])
+            val context = activity.baseContext
+
+            println(instances.size)
+
+            return instances[userId] ?: synchronized(this) {
+                Room.databaseBuilder(context, WatchableDatabase::class.java, "watchableDB4_$userId")
                     .fallbackToDestructiveMigration()
                     .build()
                     .also {
-                        Instance = it
+                        instances[userId] = it
                     }
             }
         }

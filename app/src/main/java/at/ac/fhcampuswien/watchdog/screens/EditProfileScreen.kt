@@ -18,11 +18,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import at.ac.fhcampuswien.watchdog.models.User
 import at.ac.fhcampuswien.watchdog.viewmodels.ProfileViewModel
+import kotlinx.coroutines.launch
 
 @Composable
-fun EditProfileScreen(navController: NavController, profileViewModel: ProfileViewModel) {
+fun EditProfileScreen(
+    profileViewModel: ProfileViewModel,
+    navController: NavHostController,
+    login: (String) -> Unit
+) {
     Column (
         modifier = Modifier
             .background(Color.Black)
@@ -51,7 +57,9 @@ fun EditProfileScreen(navController: NavController, profileViewModel: ProfileVie
             navController = navController,
             profileViewModel = profileViewModel,
             name = textFieldValue,
-            color = selectedColor.value)
+            color = selectedColor.value,
+            login = login
+        )
     }
 }
 
@@ -140,8 +148,10 @@ fun ColorBox(color: Color, modifier: Modifier, selected: Boolean, onClick: () ->
 }
 
 @Composable
-fun ButtonRow(navController: NavController, profileViewModel: ProfileViewModel,
-              name: String, color: Color?) {
+fun ButtonRow(
+    navController: NavController, profileViewModel: ProfileViewModel,
+    name: String, color: Color?, login: (String) -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -183,17 +193,24 @@ fun ButtonRow(navController: NavController, profileViewModel: ProfileViewModel,
                 }
             }
 
+
+            val coroutineScope = rememberCoroutineScope()
+
             IconButton(
                 onClick = {
-                    profileViewModel.addUser(
-                        User(
-                            name = name,
-                            color = color!!.toArgb(),
-                            favGenres = "",
-                        theme = "black"
-                        )
-                    );
-                    navController.navigate(route = Screen.Home.route) },
+                    coroutineScope.launch {
+                        val user = User(
+                                name = name,
+                                color = color!!.toArgb(),
+                                favGenres = "",
+                                theme = "black"
+                            )
+
+                        profileViewModel.addUser(user)
+
+                        login(user.id)
+                        //navController.navigate(route = Screen.Home.route)
+                    } },
                 modifier = Modifier
                     .background(
                         color = Color.DarkGray,

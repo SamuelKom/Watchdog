@@ -7,7 +7,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.*
 import androidx.compose.ui.Modifier
@@ -28,7 +27,9 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(
-    navController: NavController = rememberNavController(), homeViewModel: HomeViewModel
+    navController: NavController = rememberNavController(),
+    homeViewModel: HomeViewModel,
+    logout: () -> Unit
 ) {
     fetchPopularMovies(homeViewModel = homeViewModel)
     fetchTopRatedMovies(homeViewModel = homeViewModel)
@@ -53,7 +54,8 @@ fun HomeScreen(
                 modifier = Modifier,
                 navController = navController,
                 items = getSideScreens(),
-                scaffoldState = scaffoldState
+                scaffoldState = scaffoldState,
+                logout = logout
             )
         },
         drawerBackgroundColor = Color(0xFF19191A),
