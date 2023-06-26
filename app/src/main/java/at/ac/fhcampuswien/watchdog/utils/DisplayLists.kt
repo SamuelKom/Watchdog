@@ -51,9 +51,16 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ExposedDropdownMenuBox
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
@@ -93,6 +100,7 @@ fun HorizontalWatchableList(
                     WatchableImage(watchable = watchable,
                         onToggleFavouriteClicked = { favouriteWatchable ->
                             coroutineScope.launch {
+                                println("On favourite clicked: " + favouriteWatchable)
                                 viewModel.updateFavorite(watchable = favouriteWatchable)
                             }
                         },
@@ -117,6 +125,7 @@ fun HorizontalWatchableList(
 fun LibraryWatchableList(
     listTitle: String, watchableList: MutableList<Watchable>, viewModel: LibraryViewModel
 ) {
+    println("In LibraryWatchableList")
     Column(verticalArrangement = Arrangement.spacedBy(8.dp), content = {
         Text(
             modifier = Modifier.padding(start = 12.dp),
@@ -124,15 +133,16 @@ fun LibraryWatchableList(
             style = MaterialTheme.typography.h6,
             color = Color.White
         )
-        LazyGrid(list = watchableList, viewModel = viewModel)
+        LazyGrid(list = watchableList, libraryViewModel = viewModel)
     })
 }
 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun LazyGrid(list: List<Watchable>, viewModel: LibraryViewModel) {
+fun LazyGrid(list: List<Watchable>, libraryViewModel: LibraryViewModel? = null, homeViewModel: HomeViewModel? = null) {
 
+    println("In LazyGrid")
     val coroutineScope = rememberCoroutineScope()
 
     LazyVerticalStaggeredGrid(
@@ -141,22 +151,26 @@ fun LazyGrid(list: List<Watchable>, viewModel: LibraryViewModel) {
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         content = {
             items(list) { watchable ->
-                viewModel.changeTags(watchable)
+                libraryViewModel?.changeTags(watchable)
+                homeViewModel?.changeTags(watchable)
                 WatchableImage(
                     watchable = watchable,
                     onToggleFavouriteClicked = { favouriteWatchable ->
                         coroutineScope.launch {
-                            viewModel.updateFavorite(watchable = favouriteWatchable)
+                            libraryViewModel?.updateFavorite(watchable = favouriteWatchable)
+                            homeViewModel?.updateFavorite(watchable = favouriteWatchable)
                         }
                     },
                     onTogglePlannedClicked = { plannedWatchable ->
                         coroutineScope.launch {
-                            viewModel.updatePlanned(watchable = plannedWatchable)
+                            libraryViewModel?.updatePlanned(watchable = plannedWatchable)
+                            homeViewModel?.updatePlanned(watchable = plannedWatchable)
                         }
                     },
                     onToggleWatchedClicked = { watchedWatchable ->
                         coroutineScope.launch {
-                            viewModel.updateComplete(watchable = watchedWatchable)
+                            libraryViewModel?.updateComplete(watchable = watchedWatchable)
+                            homeViewModel?.updateComplete(watchable = watchedWatchable)
                         }
                     }
                 )
@@ -311,8 +325,8 @@ fun PopUpMoviesBottomContainer(movies: MutableList<Movie>) {
                                 mutableStateOf(movies[j].isPlanned)
                             }
                             ClickableIcon(
-                                onIconClicked = { planToWatch = !planToWatch },
-                                isActive = planToWatch,
+                                onIconClicked = { planToWatch.value = !planToWatch.value },
+                                isActive = planToWatch.value,
                                 activeIcon = Icons.Default.Check,
                                 passiveIcon = Icons.Default.Add,
                                 iconColor = Color.White,
@@ -353,10 +367,13 @@ fun PopUpMoviesBottomContainer(movies: MutableList<Movie>) {
     }
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PopUpSeriesBottomContainer(seasons: MutableList<Season>) {
 
     var expanded by remember { mutableStateOf(false) }
+    val rotation by animateFloatAsState(if (expanded) 180f else 0f)
+
     var seasonIndex by remember {
         mutableStateOf(
             if (seasons.isEmpty()) 0
@@ -381,46 +398,82 @@ fun PopUpSeriesBottomContainer(seasons: MutableList<Season>) {
             return
         }
         Text(text = "Episodes", fontSize = MaterialTheme.typography.h6.fontSize, color = Color.White)
-        Text(
-            text = "Season ${seasons[seasonIndex].number}",
-            fontSize = MaterialTheme.typography.h6.fontSize,
-            color = Color.White
-        )
-        /*
-        Box(modifier = Modifier.fillMaxWidth(0.5f)) {
+        //Text(
+        //    text = "Season ${seasons[seasonIndex].number}",
+        //    fontSize = MaterialTheme.typography.h6.fontSize,
+        //    color = Color.White
+        //)
+
+        Box(
+            modifier = Modifier.fillMaxWidth(0.5f)
+        ) {
 
             ExposedDropdownMenuBox(
                 expanded = expanded,
-                onExpandedChange = { expanded = !expanded },
-                modifier = Modifier.fillMaxWidth()
+                onExpandedChange = { expanded = !expanded }
             ) {
-                TextField(
-                    value = "Season ${seasons[seasonIndex].number}",
-                    onValueChange = {},
-                    readOnly = true,
-                )
-
-                ExposedDropdownMenu(
-                    expanded = expanded,
-                    onDismissRequest = { expanded = false },
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.End,
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    for (season in seasons) {
-                        println("Creating drop down item")
-                        DropdownMenuItem(
-                            onClick = {
-                                seasonIndex = season.number - 1
-                                expanded = false
+                    Text(
+                        text = "Season ${seasons[seasonIndex].number}",
+                        color = Color.White,
+                        fontSize = MaterialTheme.typography.h6.fontSize,
+                    )
+
+                    Divider(modifier = Modifier.width(8.dp))
+
+                    IconButton(
+                        onClick = { expanded = !expanded },
+                        modifier = Modifier
+                            .size(22.dp)
+                            .width(10.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowDropDown,
+                            contentDescription = "Toggle Dropdown",
+                            tint = Color.White,
+                            modifier = Modifier.rotate(rotation)
+                        )
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .offset(x = 16.dp, y = 20.dp)
+                        .fillMaxWidth()
+                        .heightIn(max = 240.dp)
+                        .verticalScroll(state = rememberScrollState())
+                ) {
+                    DropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false },
+                        modifier = Modifier
+                            .heightIn(max = 240.dp)
+                            .width(140.dp)
+                            .background(Color.Black)
+                            .padding(bottom = 5.dp)
+                    ) {
+                        for (season in seasons) {
+                            println("Creating drop down item")
+                            DropdownMenuItem(
+                                onClick = {
+                                    seasonIndex = season.number - 1
+                                    expanded = false
+                                }
+                            ) {
+                                Text(
+                                    text = "Season ${season.number} (${season.numberOfEpisodes})",
+                                    color = Color.LightGray
+                                )
                             }
-                        ) {
-                            Text(
-                                text = "Season ${season.number} | (${season.numberOfEpisodes})",
-                                color = Color.Black
-                            )
                         }
                     }
                 }
             }
-        }*/
+        }
     }
 
     /** For all episodes */
@@ -570,7 +623,7 @@ fun WatchablePopUp(
 
                                     /** Favourite Icon */
                                     ClickableIcon(
-                                        isActive = watchable.isFavorite,
+                                        isActive = watchable.isFavorite.value,
                                         activeIcon = Icons.Default.Favorite,
                                         passiveIcon = Icons.Default.FavoriteBorder,
                                         iconColor = Color(0xFFC71E1E),
@@ -579,7 +632,7 @@ fun WatchablePopUp(
                                     )
                                     /** Plan to watch Icon */
                                     ClickableIcon(
-                                        isActive = watchable.isPlanned,
+                                        isActive = watchable.isPlanned.value,
                                         activeIcon = Icons.Default.Check,
                                         passiveIcon = Icons.Default.Add,
                                         iconColor = Color.White,
@@ -588,7 +641,7 @@ fun WatchablePopUp(
                                     )
                                     /** Completed Icon */
                                     ClickableIcon(
-                                        isActive = watchable.isWatched,
+                                        isActive = watchable.isWatched.value,
                                         activeIcon = R.drawable.watched,
                                         passiveIcon = R.drawable.not_watched,
                                         iconColor = Color.White,

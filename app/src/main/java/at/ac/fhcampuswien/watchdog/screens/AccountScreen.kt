@@ -10,16 +10,22 @@ import androidx.compose.material.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import at.ac.fhcampuswien.watchdog.models.User
 import at.ac.fhcampuswien.watchdog.utils.BotNavBar
 import at.ac.fhcampuswien.watchdog.utils.SideBar
 import at.ac.fhcampuswien.watchdog.viewmodels.ProfileViewModel
@@ -36,6 +42,8 @@ fun AccountScreen(
     val scaffoldState = rememberScaffoldState()
 
     val user = profileViewModel.getUserById(userId)!!
+
+    var editClicked by remember { mutableStateOf(false) }
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -67,7 +75,7 @@ fun AccountScreen(
                     fontSize = 25.sp
                 )
                 IconButton(
-                    onClick = { },
+                    onClick = { navController.navigate(Screen.AddProfile.route) },
                     modifier = Modifier.padding(1.dp)
                 ) {
                     Icon(

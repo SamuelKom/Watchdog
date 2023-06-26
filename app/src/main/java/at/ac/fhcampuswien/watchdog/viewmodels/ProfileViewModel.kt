@@ -1,6 +1,8 @@
 package at.ac.fhcampuswien.watchdog.viewmodels
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import at.ac.fhcampuswien.watchdog.database.UserRepository
@@ -32,6 +34,12 @@ class ProfileViewModel(private val repository: UserRepository): ViewModel() {
         }
     }
 
+    suspend fun updateUser(u: User) {
+        if (_users.value.firstOrNull{ it?.id == u.id }  != null) {
+            repository.updateUser(u)
+        }
+    }
+
     fun getUserById(id: String): User? {
         return _users.value.firstOrNull{ it?.id == id }
     }
@@ -39,5 +47,14 @@ class ProfileViewModel(private val repository: UserRepository): ViewModel() {
     fun getUserIdByIdx(idx: Int): String? {
         return if (idx >= 0 && idx < _users.value.size) users.value[idx].id
         else null
+    }
+
+    fun getUser(userID: String) : User {
+        return User(
+            name = "Niklas",
+            color = Color.Black.toArgb(),
+            favGenres = "Action", theme =
+            "black"
+        )
     }
 }

@@ -17,8 +17,7 @@ import kotlinx.coroutines.launch
 
 class HomeViewModel(private val repository: WatchableRepository) : ViewModel() {
 
-    private val _searchTextState: MutableState<String> =
-        mutableStateOf(value = "")
+    private val _searchTextState: MutableState<String> = mutableStateOf(value = "")
     val searchTextState: State<String> = _searchTextState
 
     private val _popularM = mutableStateListOf<Movie>()
@@ -71,13 +70,18 @@ class HomeViewModel(private val repository: WatchableRepository) : ViewModel() {
     }
 
     suspend fun updateFavorite(watchable: Watchable) {
-        watchable.isFavorite = !watchable.isFavorite
+        watchable.isFavorite.value = !watchable.isFavorite.value
+        val value: Boolean = watchable.isFavorite.value
+        if (value)
+            watchable.isFavorite.value = false
+
+        watchable.isWatched.value = !value
         val item = LibraryItem(
             TMDbID = watchable.TMDbID,
             isMovie = watchable is Movie,
-            isFavorite = watchable.isFavorite,
-            isWatched = watchable.isWatched,
-            isPlanned = watchable.isPlanned
+            isFavorite = watchable.isFavorite.value,
+            isWatched = watchable.isWatched.value,
+            isPlanned = watchable.isPlanned.value
         )
         viewModelScope.launch(Dispatchers.IO) {
             coroutineScope {
@@ -92,13 +96,13 @@ class HomeViewModel(private val repository: WatchableRepository) : ViewModel() {
     }
 
     suspend fun updateComplete(watchable: Watchable) {
-        watchable.isWatched = !watchable.isWatched
+        watchable.isWatched.value = !watchable.isWatched.value
         val item = LibraryItem(
             TMDbID = watchable.TMDbID,
             isMovie = watchable is Movie,
-            isFavorite = watchable.isFavorite,
-            isWatched = watchable.isWatched,
-            isPlanned = watchable.isPlanned
+            isFavorite = watchable.isFavorite.value,
+            isWatched = watchable.isWatched.value,
+            isPlanned = watchable.isPlanned.value
         )
         viewModelScope.launch(Dispatchers.IO) {
             coroutineScope {
@@ -113,13 +117,13 @@ class HomeViewModel(private val repository: WatchableRepository) : ViewModel() {
     }
 
     suspend fun updatePlanned(watchable: Watchable) {
-        watchable.isPlanned = !watchable.isPlanned
+        watchable.isPlanned.value = !watchable.isPlanned.value
         val item = LibraryItem(
             TMDbID = watchable.TMDbID,
             isMovie = watchable is Movie,
-            isFavorite = watchable.isFavorite,
-            isWatched = watchable.isWatched,
-            isPlanned = watchable.isPlanned
+            isFavorite = watchable.isFavorite.value,
+            isWatched = watchable.isWatched.value,
+            isPlanned = watchable.isPlanned.value
         )
         viewModelScope.launch(Dispatchers.IO) {
             coroutineScope {
@@ -138,9 +142,9 @@ class HomeViewModel(private val repository: WatchableRepository) : ViewModel() {
             if (repository.exists(watchable.TMDbID.toString())) {
                 repository.getByID(watchable.TMDbID.toString()).collect {item ->
                     item?.let {// Necessary do not delete or remove
-                        watchable.isFavorite = it.isFavorite
-                        watchable.isWatched = it.isWatched
-                        watchable.isPlanned = it.isPlanned
+                        watchable.isFavorite.value = it.isFavorite
+                        watchable.isWatched.value = it.isWatched
+                        watchable.isPlanned.value = it.isPlanned
                     }
 
                 }

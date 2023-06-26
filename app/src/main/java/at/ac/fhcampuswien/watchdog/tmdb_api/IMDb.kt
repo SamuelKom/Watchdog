@@ -80,18 +80,46 @@ fun fetchSeriesAiringToday(homeViewModel: HomeViewModel) {
     }
 }
 
+fun fetchGenresByWatchableType(type: String = "movie", genres: MutableList<String>) {
+    val service = createApiService()
+    CoroutineScope(Dispatchers.IO).launch {
+        val genresResponse = service.getGenresByWatchableType(watchableType = type, key = API_KEY)
+
+        if (genresResponse.body() != null) {
+            for (genre in genresResponse.body()!!.genres) {
+                println("Genre: " + genre.name)
+                genres.add(genre.name)
+            }
+        }
+    }
+}
+
+fun fetchMoviesBySearchString(query: String, movies: MutableList<Movie>) {
+    val service = createApiService()
+    CoroutineScope(Dispatchers.IO).launch {
+        val moviesResponse = service.getMoviesBySearchStringReq(query = query, key = API_KEY)
+
+        if (moviesResponse.body() != null) {
+            movies.clear()
+            for (movie in moviesResponse.body()!!.results!!) {
+                movie.poster = IMAGE_URL + movie.poster
+                movie.widePoster = IMAGE_URL + movie.widePoster
+                movie.detailPosters = listOf(movie.widePoster)
+                movies.add(movie)
+            }
+        }
+    }
+}
+
 fun fetchWatchablesByLibraryItems(libraryItems: List<LibraryItem>, watchables: MutableList<Watchable>) {
 
-    println("In fetchLibraryItems")
     for (item in libraryItems) {
         if (item.isMovie) {
-            println("Creating Movie: " + item.TMDbID)
             val movie = Movie()
             movie.TMDbID = item.TMDbID
             fetchDetails(watchable = movie)
             watchables.add(movie)
         } else {
-            println("Creating Series: " + item.TMDbID)
             val series = Series()
             series.TMDbID = item.TMDbID
             fetchDetails(watchable = series)
