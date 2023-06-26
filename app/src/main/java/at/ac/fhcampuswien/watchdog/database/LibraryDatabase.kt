@@ -9,7 +9,7 @@ import at.ac.fhcampuswien.watchdog.models.LibraryItem
 
 @Database(
     entities = [LibraryItem::class],
-    version = 8,
+    version = 9,
     exportSchema = false
 )
 

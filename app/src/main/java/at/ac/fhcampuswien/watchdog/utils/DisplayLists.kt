@@ -115,7 +115,7 @@ fun HorizontalWatchableList(
 
 @Composable
 fun LibraryWatchableList(
-    listTitle: String, watchableList: List<Watchable>, viewModel: LibraryViewModel
+    listTitle: String, watchableList: MutableList<Watchable>, viewModel: LibraryViewModel
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp), content = {
         Text(
@@ -133,6 +133,8 @@ fun LibraryWatchableList(
 @Composable
 fun LazyGrid(list: List<Watchable>, viewModel: LibraryViewModel) {
 
+    val coroutineScope = rememberCoroutineScope()
+
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(2),
         verticalItemSpacing = 4.dp,
@@ -143,19 +145,19 @@ fun LazyGrid(list: List<Watchable>, viewModel: LibraryViewModel) {
                 WatchableImage(
                     watchable = watchable,
                     onToggleFavouriteClicked = { favouriteWatchable ->
-                        /*coroutineScope.launch {
+                        coroutineScope.launch {
                             viewModel.updateFavorite(watchable = favouriteWatchable)
-                        }*/
+                        }
                     },
                     onTogglePlannedClicked = { plannedWatchable ->
-                        /*coroutineScope.launch {
+                        coroutineScope.launch {
                             viewModel.updatePlanned(watchable = plannedWatchable)
-                        }*/
+                        }
                     },
                     onToggleWatchedClicked = { watchedWatchable ->
-                        /*coroutineScope.launch {
+                        coroutineScope.launch {
                             viewModel.updateComplete(watchable = watchedWatchable)
-                        }*/
+                        }
                     }
                 )
             }

@@ -14,7 +14,7 @@ class WatchableRepository(private val libraryDao: LibraryDao) {
 
     fun getFavorites() = libraryDao.getFavorites()
 
-    fun getCompleted() = libraryDao.getWatched()
+    fun getWatched() = libraryDao.getWatched()
 
     fun getPlanned() = libraryDao.getPlanned()
 

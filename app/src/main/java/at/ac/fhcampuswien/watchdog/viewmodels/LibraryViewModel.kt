@@ -15,66 +15,47 @@ import at.ac.fhcampuswien.watchdog.tmdb_api.fetchWatchablesByLibraryItems
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class LibraryViewModel(private val repository: WatchableRepository): ViewModel() {
     private var _currentWatchables = mutableStateListOf<Watchable>()
-    val currentWatchables: List<Watchable> get() = _currentWatchables
+    val currentWatchables: MutableList<Watchable> get() = _currentWatchables
 
     private val _currentList: MutableState<String> =
         mutableStateOf(value = Screen.Favorites.title)
     val currentList: State<String> = _currentList
 
     private val _favoriteWatchables = MutableStateFlow(listOf<LibraryItem>())
-    private val _favorites = mutableStateListOf<Watchable>()
+    val favoriteWatchables: StateFlow<List<LibraryItem>> = _favoriteWatchables.asStateFlow()
+    private val favorites = mutableStateListOf<Watchable>()
 
-    private val _completeWatchables = MutableStateFlow(listOf<LibraryItem>())
-    private val _completed = mutableStateListOf<Watchable>()
+    private val _watchedWatchables = MutableStateFlow(listOf<LibraryItem>())
+    val watchedWatchables: StateFlow<List<LibraryItem>> = _watchedWatchables.asStateFlow()
+    private val watched = mutableStateListOf<Watchable>()
 
     private val _plannedWatchables = MutableStateFlow(listOf<LibraryItem>())
-    private val _planned = mutableStateListOf<Watchable>()
+    val plannedWatchables: StateFlow<List<LibraryItem>> = _plannedWatchables.asStateFlow()
+    private val planned = mutableStateListOf<Watchable>()
 
 
     init {
         viewModelScope.launch {
-            fetchWatchablesByLibraryItems(
-                libraryItems = listOf(
-                    LibraryItem(
-                        TMDbID = 385687,
-                        isMovie = true,
-                        isFavorite = true
-                    ),
-                    LibraryItem(
-                        TMDbID = 697843,
-                        isMovie = true,
-                        isPlanned = true,
-                        isFavorite = true
-                    ),
-                    LibraryItem(
-                        TMDbID = 94722,
-                        isMovie = false,
-                        isWatched = true,
-                        isFavorite = true
-                    )
-                ),
-                watchables = _favorites
-            )
-            _currentWatchables = _favorites
-            //repository.getFavorites().collect() { favoriteList ->
-            //    // List of library items
-            //    // -> for each Fetch by id (parse favourite list as parameter)
-            //    fetchWatchablesByLibraryItems(libraryItems = favoriteList, watchables = _favorites)
-            //    _favoriteWatchables.value = favoriteList
-            //    _currentWatchables = _favorites
-            //}
-            //repository.getCompleted().collect() { completeList ->
-            //    _completeWatchables.value = completeList
-            //    _currentWatchables = _completed
-            //}
-            //repository.getPlanned().collect() { plannedList ->
-            //    _plannedWatchables.value = plannedList
-            //    _currentWatchables = _planned
-            //}
+            repository.getFavorites().collect() { favoriteList ->
+                _favoriteWatchables.value = favoriteList
+                fetchWatchablesByLibraryItems(libraryItems = favoriteList, watchables = favorites)
+            }
+            repository.getWatched().collect() { watchedList ->
+                _watchedWatchables.value = watchedList
+                println("watched" + watchedList.size)
+                fetchWatchablesByLibraryItems(libraryItems = watchedList, watchables = watched)
+                _currentWatchables = watched
+            }
+            repository.getPlanned().collect() { plannedList ->
+                _plannedWatchables.value = plannedList
+                fetchWatchablesByLibraryItems(libraryItems = plannedList, watchables = planned)
+            }
         }
     }
 
@@ -83,15 +64,31 @@ class LibraryViewModel(private val repository: WatchableRepository): ViewModel()
         when (type){
             0 -> {
                 _currentList.value = Screen.Favorites.title
-                _currentWatchables = _favorites
+                /*viewModelScope.launch {
+                    repository.getFavorites().collect{ favoriteList ->
+                        fetchWatchablesByLibraryItems(libraryItems = favoriteList, watchables = favorites)
+                    }
+                }*/
+                _currentWatchables = favorites
             }
             1 -> {
                 _currentList.value = Screen.Watched.title
-                _currentWatchables = _completed
+                /*viewModelScope.launch {
+                    repository.getFavorites().collect{ watchedList ->
+                        fetchWatchablesByLibraryItems(libraryItems = watchedList, watchables = watched)
+                    }
+                }*/
+                _currentWatchables = watched
+                println("Length" + watched.size)
             }
             2 -> {
                 _currentList.value = Screen.Planned.title
-                _currentWatchables = _planned
+                /*viewModelScope.launch {
+                    repository.getFavorites().collect{ plannedList ->
+                        fetchWatchablesByLibraryItems(libraryItems = plannedList, watchables = planned)
+                    }
+                }*/
+                _currentWatchables = planned
             }
         }
     }
