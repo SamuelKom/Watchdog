@@ -33,7 +33,7 @@ fun LibraryScreen(
         drawerContent = { SideBar(modifier = Modifier, navController = navController, items = getSideScreens(), scaffoldState = scaffoldState, logout = logout) },
         drawerBackgroundColor = Color(0xFF19191A),
         bottomBar = { BotNavBar(navController = navController, scaffoldState = scaffoldState, color = color) },
-        topBar = { LibraryTopBar(modifier = Modifier, libraryViewModel = libraryViewModel) },
+        topBar = { LibraryTopBar(modifier = Modifier, libraryViewModel = libraryViewModel, color) },
         backgroundColor = Color(0xFF19191A)
     ) { padding ->
         println(padding)

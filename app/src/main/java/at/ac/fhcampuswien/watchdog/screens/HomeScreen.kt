@@ -37,6 +37,7 @@ import at.ac.fhcampuswien.watchdog.utils.HorizontalWatchableList
 import at.ac.fhcampuswien.watchdog.utils.LazyGrid
 import at.ac.fhcampuswien.watchdog.utils.SearchBar
 import at.ac.fhcampuswien.watchdog.utils.SideBar
+import at.ac.fhcampuswien.watchdog.utils.getNegativeColor
 import at.ac.fhcampuswien.watchdog.viewmodels.HomeViewModel
 import at.ac.fhcampuswien.watchdog.viewmodels.LibraryViewModel
 import kotlinx.coroutines.delay
@@ -188,7 +189,7 @@ fun SlideInPopup(user: User) {
             // Content of the popup
             Text(
                 text = "Hello ${user.name}",
-                color = Color.White,
+                color = getNegativeColor(color = Color(user.color)),
                 fontSize = 20.sp,
                modifier = Modifier.offset(y = (-30).dp)
             )
