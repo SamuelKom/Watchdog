@@ -1,17 +1,16 @@
 package at.ac.fhcampuswien.watchdog.models
 
 import androidx.compose.runtime.mutableStateListOf
-import androidx.room.Entity
 import com.google.gson.annotations.SerializedName
 import java.util.*
 
-@Entity(tableName = "series")
+//@Entity(tableName = "series")
 class Series(
     @SerializedName("name")
-    val title: String = "",
+    var title: String = "",
 
     @SerializedName("first_air_date")
-    val startDate: String = "",
+    var startDate: String = "",
 
     var endDate: String = "",
 

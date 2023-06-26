@@ -1,13 +1,13 @@
 package at.ac.fhcampuswien.watchdog.navigation
 
-import android.app.Activity
-import android.content.Context
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import at.ac.fhcampuswien.watchdog.database.LibraryDatabase
 import at.ac.fhcampuswien.watchdog.database.UserDatabase
 import at.ac.fhcampuswien.watchdog.database.UserRepository
 import at.ac.fhcampuswien.watchdog.database.WatchableDatabase
@@ -35,8 +35,8 @@ fun Navigation() {
         val user = sharedPrefs.getString("user", null)
         println(user)
 
-        val db = WatchableDatabase.getDatabase(LocalContext.current as Activity, user!!)
-        val repository = WatchableRepository(watchableDao = db.watchableDao())
+        val db = LibraryDatabase.getDatabase(LocalContext.current, user!!)
+        val repository = WatchableRepository(libraryDao = db.watchableDao())
 
         val userDB = UserDatabase.getDatabase(LocalContext.current)
         val userRepository = UserRepository(userDao = userDB.userDao())

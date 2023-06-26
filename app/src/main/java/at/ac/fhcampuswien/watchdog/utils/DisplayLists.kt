@@ -19,12 +19,6 @@ import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.BlendMode
@@ -54,17 +48,10 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ExposedDropdownMenuBox
-import androidx.compose.material.TextField
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.withFrameNanos
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -77,6 +64,7 @@ import at.ac.fhcampuswien.watchdog.models.Season
 import at.ac.fhcampuswien.watchdog.tmdb_api.fetchDetails
 import at.ac.fhcampuswien.watchdog.tmdb_api.fetchSimilarMovies
 import at.ac.fhcampuswien.watchdog.ui.theme.Shapes
+import at.ac.fhcampuswien.watchdog.viewmodels.LibraryViewModel
 import kotlin.random.Random
 
 
@@ -90,77 +78,88 @@ fun HorizontalWatchableList(
     val coroutineScope = rememberCoroutineScope()
 
     Card(
-        backgroundColor = Color.Transparent,
-        elevation = 0.dp,
-        modifier = Modifier
-            .height(250.dp)
+        backgroundColor = Color.Transparent, elevation = 0.dp, modifier = Modifier.height(250.dp)
     ) {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            content = {
-                Text(
-                    modifier = Modifier.padding(start = 12.dp),
-                    text = listTitle,
-                    style = MaterialTheme.typography.h6,
-                    color = Color.White
-                )
-                LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    content = {
-                        items(watchableList) { watchable ->
-                            WatchableImage(
-                                watchable = watchable,
-                                onToggleFavouriteClicked = { favouriteWatchable ->
-                                    coroutineScope.launch {
-                                        viewModel.updateFavorite(watchable = favouriteWatchable)
-                                    }
-                                },
-                                onTogglePlannedClicked = { plannedWatchable ->
-                                    coroutineScope.launch {
-                                        viewModel.updatePlanned(watchable = plannedWatchable)
-                                    }
-                                },
-                                onToggleWatchedClicked = { watchedWatchable ->
-                                    coroutineScope.launch {
-                                        viewModel.updateComplete(watchable = watchedWatchable)
-                                    }
-                                })
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp), content = {
+            Text(
+                modifier = Modifier.padding(start = 12.dp),
+                text = listTitle,
+                style = MaterialTheme.typography.h6,
+                color = Color.White
+            )
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(10.dp), content = {
+                items(watchableList) { watchable ->
+                    viewModel.changeTags(watchable)
+                    WatchableImage(watchable = watchable,
+                        onToggleFavouriteClicked = { favouriteWatchable ->
+                            coroutineScope.launch {
+                                viewModel.updateFavorite(watchable = favouriteWatchable)
+                            }
+                        },
+                        onTogglePlannedClicked = { plannedWatchable ->
+                            coroutineScope.launch {
+                                viewModel.updatePlanned(watchable = plannedWatchable)
+                            }
+                        },
+                        onToggleWatchedClicked = { watchedWatchable ->
+                            coroutineScope.launch {
+                                viewModel.updateComplete(watchable = watchedWatchable)
+                            }
                         }
-                    }
-                )
+                    )
+                }
             })
+        })
     }
+}
+
+@Composable
+fun LibraryWatchableList(
+    listTitle: String, watchableList: MutableList<Watchable>, viewModel: LibraryViewModel
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp), content = {
+        Text(
+            modifier = Modifier.padding(start = 12.dp),
+            text = listTitle,
+            style = MaterialTheme.typography.h6,
+            color = Color.White
+        )
+        LazyGrid(list = watchableList, viewModel = viewModel)
+    })
 }
 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun LazyMovieGrid(movieList: List<Watchable>) {
-    //val movieList = homeViewModel.popularMovies //.collectAsState();
+fun LazyGrid(list: List<Watchable>, viewModel: LibraryViewModel) {
+
+    val coroutineScope = rememberCoroutineScope()
 
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(2),
         verticalItemSpacing = 4.dp,
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         content = {
-            items(movieList) { watchable ->
+            items(list) { watchable ->
+                viewModel.changeTags(watchable)
                 WatchableImage(
                     watchable = watchable,
                     onToggleFavouriteClicked = { favouriteWatchable ->
-                        /*coroutineScope.launch {
+                        coroutineScope.launch {
                             viewModel.updateFavorite(watchable = favouriteWatchable)
-                        }*/
+                        }
                     },
                     onTogglePlannedClicked = { plannedWatchable ->
-                        /*coroutineScope.launch {
+                        coroutineScope.launch {
                             viewModel.updatePlanned(watchable = plannedWatchable)
-                        }*/
+                        }
                     },
                     onToggleWatchedClicked = { watchedWatchable ->
-                        /*coroutineScope.launch {
+                        coroutineScope.launch {
                             viewModel.updateComplete(watchable = watchedWatchable)
-                        }*/
-                    })
+                        }
+                    }
+                )
             }
         },
         modifier = Modifier
@@ -218,13 +217,11 @@ fun MoviePopUp(
     onTogglePlannedClicked: (Watchable) -> Unit,
     onToggleWatchedClicked: (Watchable) -> Unit
 ) {
-    if (!movie.hasAllDetails)
-        fetchDetails(movie)
+    if (!movie.hasAllDetails) fetchDetails(movie)
 
     val similarMovies = remember { mutableStateListOf<Movie>() }
 
-    if (similarMovies.isEmpty())
-        fetchSimilarMovies(movieID = movie.TMDbID, movies = similarMovies)
+    if (similarMovies.isEmpty()) fetchSimilarMovies(movieID = movie.TMDbID, movies = similarMovies)
 
     WatchablePopUp(
         watchable = movie,
@@ -245,8 +242,7 @@ fun SeriesPopUp(
     onTogglePlannedClicked: (Watchable) -> Unit,
     onToggleWatchedClicked: (Watchable) -> Unit
 ) {
-    if (!series.hasAllDetails)
-        fetchDetails(series)
+    if (!series.hasAllDetails) fetchDetails(series)
 
     WatchablePopUp(
         watchable = series,
@@ -302,7 +298,7 @@ fun PopUpMoviesBottomContainer(movies: MutableList<Movie>) {
                         ) {
                             AsyncImage(
                                 model =
-                                if(movies[j].widePoster.endsWith("original")) movies[j].poster
+                                if (movies[j].widePoster.endsWith("original")) movies[j].poster
                                 else movies[j].widePoster,
                                 contentScale = ContentScale.Crop,
                                 contentDescription = null,
@@ -592,7 +588,7 @@ fun WatchablePopUp(
                                     )
                                     /** Completed Icon */
                                     ClickableIcon(
-                                        isActive = watchable.isComplete,
+                                        isActive = watchable.isWatched,
                                         activeIcon = R.drawable.watched,
                                         passiveIcon = R.drawable.not_watched,
                                         iconColor = Color.White,
@@ -614,7 +610,7 @@ fun WatchablePopUp(
                                 modifier = Modifier.weight(0.32f)
                             ) {
                                 PopUpRightWatchableInformation(
-                                    date = "Date", //watchable.getWatchableDate(),
+                                    date = watchable.getWatchableDate(),
                                     rating = watchable.rating,
                                     length =
                                     if (watchable is Movie) "${watchable.length}"
@@ -905,7 +901,7 @@ fun PopUpTopBox(
         }
         /** Title */
         Text(
-            text = "Title", // watchable.getWatchableTitle(),
+            text = watchable.getWatchableTitle(),
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .padding(6.dp)
@@ -915,27 +911,6 @@ fun PopUpTopBox(
         )
     }
 }
-
-
-@Composable
-fun LibraryList(
-    modifier: Modifier,
-    watchables: List<Watchable>,
-    listTitle: String
-    //series: List<Series> = getSeries(),
-    //other lambda functions
-) {
-    Row{
-        Text(
-            modifier = Modifier.padding(start = 12.dp),
-            text = listTitle,
-            style = MaterialTheme.typography.h6,
-            color = Color.White
-        )
-    }
-    LazyMovieGrid(movieList = watchables)
-}
-
 
 @Composable
 fun ItemCard(

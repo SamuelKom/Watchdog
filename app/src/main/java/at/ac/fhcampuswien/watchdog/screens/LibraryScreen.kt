@@ -1,12 +1,13 @@
 package at.ac.fhcampuswien.watchdog.screens
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,7 +23,6 @@ fun LibraryScreen(
     libraryViewModel: LibraryViewModel,
     logout: () -> Unit
 ) {
-    val currentWatchablesState by libraryViewModel.currentWatchablesState.collectAsState()
     val currentList by libraryViewModel.currentList
 
     val scope = rememberCoroutineScope()
@@ -37,7 +37,8 @@ fun LibraryScreen(
         topBar = { LibraryTopBar(modifier = Modifier, libraryViewModel = libraryViewModel) },
         backgroundColor = Color(0xFF19191A)
     ) { padding ->
-        LibraryList(modifier = Modifier.padding(padding), watchables = currentWatchablesState, listTitle = currentList)
+        println(padding)
+        LibraryWatchableList(listTitle = currentList, watchableList = libraryViewModel.currentWatchables, viewModel = libraryViewModel)
     }
 
     BackHandler {

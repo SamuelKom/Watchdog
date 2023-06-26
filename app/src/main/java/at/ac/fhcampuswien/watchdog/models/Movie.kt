@@ -1,18 +1,16 @@
 package at.ac.fhcampuswien.watchdog.models
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 import java.util.*
 
-@Entity(tableName = "movies")
+//@Entity(tableName = "movies")
 class Movie(
 
     @SerializedName("title")
-    val title: String = "",
+    var title: String = "",
 
     @SerializedName("release_date")
-    val date: String = "",
+    var date: String = "",
 
     var length: Int = 0
 

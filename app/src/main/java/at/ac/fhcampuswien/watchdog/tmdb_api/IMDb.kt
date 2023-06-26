@@ -2,6 +2,7 @@ package at.ac.fhcampuswien.watchdog.tmdb_api
 
 import android.util.Log
 import at.ac.fhcampuswien.watchdog.models.Genre
+import at.ac.fhcampuswien.watchdog.models.LibraryItem
 import at.ac.fhcampuswien.watchdog.models.Movie
 import at.ac.fhcampuswien.watchdog.models.Season
 import at.ac.fhcampuswien.watchdog.models.Series
@@ -79,6 +80,26 @@ fun fetchSeriesAiringToday(homeViewModel: HomeViewModel) {
     }
 }
 
+fun fetchWatchablesByLibraryItems(libraryItems: List<LibraryItem>, watchables: MutableList<Watchable>) {
+
+    println("In fetchLibraryItems")
+    for (item in libraryItems) {
+        if (item.isMovie) {
+            println("Creating Movie: " + item.TMDbID)
+            val movie = Movie()
+            movie.TMDbID = item.TMDbID
+            fetchDetails(watchable = movie)
+            watchables.add(movie)
+        } else {
+            println("Creating Series: " + item.TMDbID)
+            val series = Series()
+            series.TMDbID = item.TMDbID
+            fetchDetails(watchable = series)
+            watchables.add(series)
+        }
+    }
+}
+
 private fun fetchDetailPoster(watchable: Watchable) {
     val service = createApiService()
     CoroutineScope(Dispatchers.IO).launch {
@@ -129,6 +150,15 @@ private fun fetchSeriesDetails(series: Series) {
             series.endDate = details.endDate
             series.numberOfSeasons = details.numberOfSeasons
 
+            // If normally default values are unassigned, set them
+            if (series.title == "") series.title = details.title
+            if (series.startDate == "") series.startDate = details.startDate
+            if (series.plot == "") series.plot = details.plot
+            if (series.widePoster == "") series.widePoster = IMAGE_URL + details.widePoster
+            if (series.poster == "") series.poster = IMAGE_URL + details.poster
+            if (series.rating == 0.0) series.rating = details.rating
+
+            // Season details
             for (i in 1..series.numberOfSeasons) {
                 val seasonResponse = service.getSeasonDetails(id = series.TMDbID, number = i, key = API_KEY)
 
@@ -156,6 +186,15 @@ private fun fetchMovieDetails(movie: Movie) {
                 movie.genres.add(genre.name)
             }
             movie.length = details.length
+
+            // If normally default values are unassigned, set them
+            if (movie.title == "") movie.title = details.title
+            if (movie.date == "") movie.date = details.date
+            if (movie.plot == "") movie.plot = details.plot
+            if (movie.widePoster == "") movie.widePoster = IMAGE_URL + details.widePoster
+            if (movie.poster == "") movie.poster = IMAGE_URL + details.poster
+            if (movie.rating == 0.0) movie.rating = details.rating
+
         }
     }
 }
