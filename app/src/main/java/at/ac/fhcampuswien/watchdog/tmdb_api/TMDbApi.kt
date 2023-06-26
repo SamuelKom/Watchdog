@@ -36,6 +36,10 @@ interface TMDbApi {
     @GET("/3/genre/{type}/list")
     suspend fun getGenresByWatchableType(@Path("type") watchableType: String, @Query("api_key") key: String): Response<GenresResponse>
 
+    @GET("/3/discover/movie")
+    suspend fun getMoviesByGenres(@Query("api_key") key: String, @Query("with_genres") genres: String): Response<MovieResponse>
+
+
 
 
     /**                          ***     Series      ***                          **/

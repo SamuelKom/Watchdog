@@ -27,11 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import at.ac.fhcampuswien.watchdog.models.Movie
-import at.ac.fhcampuswien.watchdog.tmdb_api.fetchMoviesBySearchString
-import at.ac.fhcampuswien.watchdog.tmdb_api.fetchPopularMovies
-import at.ac.fhcampuswien.watchdog.tmdb_api.fetchSeriesAiringToday
-import at.ac.fhcampuswien.watchdog.tmdb_api.fetchTopRatedMovies
-import at.ac.fhcampuswien.watchdog.tmdb_api.fetchTopRatedSeries
+import at.ac.fhcampuswien.watchdog.tmdb_api.*
 import at.ac.fhcampuswien.watchdog.utils.BotNavBar
 import at.ac.fhcampuswien.watchdog.utils.HorizontalWatchableList
 import at.ac.fhcampuswien.watchdog.utils.LazyGrid
@@ -51,6 +47,7 @@ fun HomeScreen(
     if (homeViewModel.topRatedMovies.isEmpty()) fetchTopRatedMovies(homeViewModel = homeViewModel)
     if (homeViewModel.topRatedSeries.isEmpty()) fetchTopRatedSeries(homeViewModel = homeViewModel)
     if (homeViewModel.seriesAiringToday.isEmpty()) fetchSeriesAiringToday(homeViewModel = homeViewModel)
+    if (homeViewModel.recommendedMovies.isEmpty()) fetchMoviesByGenres(homeViewModel = homeViewModel, genres = listOf(28, 35))
 
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
@@ -116,6 +113,14 @@ fun HomeScreen(
                         viewModel = homeViewModel
                     )
                 }
+
+                item {
+                    HorizontalWatchableList(
+                        listTitle = "Recommended Movies",
+                        watchableList = homeViewModel.recommendedMovies,
+                        viewModel = homeViewModel)
+                }
+
                 item { Divider(
                     Modifier
                         .fillMaxWidth()

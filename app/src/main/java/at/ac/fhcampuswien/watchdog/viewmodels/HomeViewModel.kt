@@ -22,6 +22,7 @@ class HomeViewModel(private val repository: WatchableRepository) : ViewModel() {
 
     private val _popularM = mutableStateListOf<Movie>()
     private val _topRatedM = mutableStateListOf<Movie>()
+    private val _recommendedM = mutableStateListOf<Movie>()
 
     private val _topRatedS = mutableStateListOf<Series>()
     private val _airingTodayS = mutableStateListOf<Series>()
@@ -37,6 +38,11 @@ class HomeViewModel(private val repository: WatchableRepository) : ViewModel() {
 
     val seriesAiringToday: List<Series>
         get() = _airingTodayS
+
+    val recommendedMovies: List<Movie>
+        get() = _recommendedM
+
+
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
@@ -66,6 +72,12 @@ class HomeViewModel(private val repository: WatchableRepository) : ViewModel() {
     fun addSeriesAiringToday(s: Series) {
         if (_airingTodayS.firstOrNull { it.UID == s.UID } == null) {
             _airingTodayS.add(s)
+        }
+    }
+
+    fun addRecommendedMovie(m: Movie) {
+        if (_recommendedM.firstOrNull { it.UID == m.UID } == null) {
+            _recommendedM.add(m)
         }
     }
 

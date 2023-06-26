@@ -23,5 +23,4 @@ class WatchableRepository(private val libraryDao: LibraryDao) {
     fun exists(id: String) = libraryDao.isExists(id)
 
     suspend fun cleanTable() = libraryDao.cleanTable()
-
 }

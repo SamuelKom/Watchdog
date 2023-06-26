@@ -80,7 +80,7 @@ fun fetchSeriesAiringToday(homeViewModel: HomeViewModel) {
     }
 }
 
-fun fetchGenresByWatchableType(type: String = "movie", genres: MutableList<String>) {
+fun fetchGenresByWatchableType(type: String = "movie", genreNames: MutableList<String> = mutableListOf(), genreNumbers: MutableList<Int> = mutableListOf()) {
     val service = createApiService()
     CoroutineScope(Dispatchers.IO).launch {
         val genresResponse = service.getGenresByWatchableType(watchableType = type, key = API_KEY)
@@ -88,9 +88,22 @@ fun fetchGenresByWatchableType(type: String = "movie", genres: MutableList<Strin
         if (genresResponse.body() != null) {
             for (genre in genresResponse.body()!!.genres) {
                 println("Genre: " + genre.name)
-                genres.add(genre.name)
+                genreNames.add(genre.name)
+                genreNumbers.add(genre.id)
             }
         }
+    }
+}
+
+fun fetchMoviesByGenres(homeViewModel: HomeViewModel, genres: List<Int>) {
+    val service = createApiService()
+    CoroutineScope(Dispatchers.IO).launch {
+        println("genres" + genres.joinToString())
+        createMoviesFromResponse(
+            response = service.getMoviesByGenres(API_KEY, genres.joinToString()),
+            homeViewModel = homeViewModel,
+            type = 3
+        )
     }
 }
 
@@ -253,8 +266,10 @@ private fun createMoviesFromResponse(
 
                 if (type == 1)
                     homeViewModel.addPopularMovie(m)
-                else
+                else if (type == 2)
                     homeViewModel.addTopRatedMovie(m)
+                else if (type == 3)
+                    homeViewModel.addRecommendedMovie(m)
             }
         }
     } else {

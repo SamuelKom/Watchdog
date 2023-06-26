@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import at.ac.fhcampuswien.watchdog.models.User
+import at.ac.fhcampuswien.watchdog.tmdb_api.fetchGenresByWatchableType
 import at.ac.fhcampuswien.watchdog.viewmodels.ProfileViewModel
 import kotlinx.coroutines.launch
 
@@ -67,6 +68,10 @@ fun EditProfileScreen(
         val selectedColor: MutableState<Color?> = remember {
             mutableStateOf(user?.color?.let { Color(it) })
         }
+        val genreList = remember { mutableStateListOf<String>() }
+        val selectedItems = remember { mutableStateListOf<String>() }
+
+        fetchGenresByWatchableType("movie", genreList)
 
         NameRow(textFieldValue = textFieldValue,
             onChange = { newValue -> textFieldValue = newValue})
@@ -74,10 +79,10 @@ fun EditProfileScreen(
         ColorRow(selectedColor = selectedColor.value,
             onChange = { color -> selectedColor.value = color })
 
-        val selectedItems = remember { mutableStateListOf<String>() }
         GenreSelection(selectedItems = selectedItems,
             addItem = { g -> selectedItems.add(g) },
-            removeItem = { g -> selectedItems.remove(g) })
+            removeItem = { g -> selectedItems.remove(g) },
+            genres = genreList)
 
         ButtonRow(
             navController = navController,
@@ -176,8 +181,10 @@ fun ColorBox(color: Color, modifier: Modifier, selected: Boolean, onClick: () ->
 
 @Composable
 fun GenreSelection(
-    genres: List<String> = listOf("Action", "Anime", "Comic", "Thriller", "Comedy"),
-    selectedItems: List<String>, addItem: (String) -> Unit, removeItem: (String) -> Unit
+    genres: List<String>,
+    selectedItems: List<String>,
+    addItem: (String) -> Unit,
+    removeItem: (String) -> Unit
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
