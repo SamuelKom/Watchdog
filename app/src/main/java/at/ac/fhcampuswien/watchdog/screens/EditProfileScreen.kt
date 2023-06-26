@@ -1,5 +1,6 @@
 package at.ac.fhcampuswien.watchdog.screens
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,18 +39,34 @@ fun EditProfileScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(30.dp)
     ){
+
+        // Load user ID from system variable
+        val sharedPrefs =
+            LocalContext.current.getSharedPreferences("my_prefs", Context.MODE_PRIVATE)
+        val userID = sharedPrefs.getString("user", null)
+
+        val user : User? =
+            if (userID != null) profileViewModel.getUserById(userID)
+            else null
+
         Text(
-            text = "Create Profile",
+            text =
+            if (user == null) "Create Profile"
+            else "Edit Profile",
             color = Color.White,
             fontSize = 30.sp,
             textAlign = TextAlign.Center
         )
 
-        var textFieldValue by remember { mutableStateOf("") }
-        val selectedColor: MutableState<Color?> = remember { mutableStateOf(null) }
+        var textFieldValue by remember {
+            mutableStateOf(user?.name ?: "")
+        }
+        val selectedColor: MutableState<Color?> = remember {
+            mutableStateOf(user?.color?.let { Color(it) })
+        }
 
         NameRow(textFieldValue = textFieldValue,
-            onChange = {newValue -> textFieldValue = newValue})
+            onChange = { newValue -> textFieldValue = newValue})
 
         ColorRow(selectedColor = selectedColor.value,
             onChange = { color -> selectedColor.value = color})
@@ -194,23 +212,34 @@ fun ButtonRow(
             }
 
 
+            val sharedPrefs =
+                LocalContext.current.getSharedPreferences("my_prefs", Context.MODE_PRIVATE)
+            val userID = sharedPrefs.getString("user", null)
             val coroutineScope = rememberCoroutineScope()
 
             IconButton(
                 onClick = {
-                    coroutineScope.launch {
-                        val user = User(
+                    if (name.isNotEmpty() && color != null) {
+                        coroutineScope.launch {
+                            val user = User(
                                 name = name,
-                                color = color!!.toArgb(),
+                                color = color.toArgb(),
                                 favGenres = "",
                                 theme = "black"
                             )
 
-                        profileViewModel.addUser(user)
-
-                        login(user.id)
-                        //navController.navigate(route = Screen.Home.route)
-                    } },
+                            if (userID == null) {
+                                profileViewModel.addUser(user)
+                                login(user.id)
+                                navController.navigate(route = Screen.Home.route)
+                            } else {
+                                user.id = userID
+                                profileViewModel.updateUser(user)
+                                navController.popBackStack()
+                            }
+                        }
+                    }
+                          },
                 modifier = Modifier
                     .background(
                         color = Color.DarkGray,
@@ -223,8 +252,11 @@ fun ButtonRow(
                     modifier = Modifier.padding(start = 10.dp, end = 10.dp),
                     horizontalArrangement = Arrangement.spacedBy(7.dp),
                 ) {
+
                     Text(
-                        text = "Login",
+                        text =
+                        if (userID == null) "Login"
+                        else "Save",
                         color = Color.LightGray
                     )
                 }

@@ -87,10 +87,12 @@ fun ProfileSelectionScreen(
             centeredChanged = { idx -> centeredUserIdx.value = idx }
         )
 
-        LoginButton(onClick = {
-            login(profileViewModel.getUserIdByIdx(centeredUserIdx.value)!!)
-            //navController.navigate(route = Screen.Home.route)
-        })
+        if (users.isNotEmpty()) {
+            LoginButton(onClick = {
+                login(profileViewModel.getUserIdByIdx(centeredUserIdx.value)!!)
+                //navController.navigate(route = Screen.Home.route)
+            })
+        }
 
         NewProfileButton( onCreateProfileClicked = { navController.navigate(route = Screen.AddProfile.route) })
     }

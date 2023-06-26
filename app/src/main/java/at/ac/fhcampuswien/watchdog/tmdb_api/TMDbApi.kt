@@ -30,6 +30,13 @@ interface TMDbApi {
     @GET("/3/movie/{id}/recommendations")
     suspend fun getMovieRecommendationsReq(@Path("id") id: Int, @Query("api_key") key: String): Response<MovieResponse>
 
+    @GET("/3/search/movie")
+    suspend fun getMoviesBySearchStringReq(@Query("query") query: String, @Query("api_key") key: String): Response<MovieResponse>
+
+    @GET("/3/genre/{type}/list")
+    suspend fun getGenresByWatchableType(@Path("type") watchableType: String, @Query("api_key") key: String): Response<GenresResponse>
+
+
 
     /**                          ***     Series      ***                          **/
     @GET("/3/tv/top_rated")

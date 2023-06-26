@@ -30,15 +30,14 @@ open class Watchable(
 
     var trailer: String = "",
 
-    initialIsFavorite: Boolean = false,
-    initialIsWatched: Boolean = false,
-    initialIsPlanned: Boolean = false,
+    var isFavorite : MutableState<Boolean> = mutableStateOf(false),
+    var isWatched : MutableState<Boolean> = mutableStateOf(false),
+    var isPlanned : MutableState<Boolean> = mutableStateOf(false),
 
     var hasAllDetails: Boolean = false
     ) {
-    var isFavorite by mutableStateOf(initialIsFavorite)
-    var isWatched by mutableStateOf(initialIsWatched)
-    var isPlanned by mutableStateOf(initialIsPlanned)
+
+
      open fun getWatchableTitle() : String = ""
      open fun getWatchableDate() : String = ""
 }

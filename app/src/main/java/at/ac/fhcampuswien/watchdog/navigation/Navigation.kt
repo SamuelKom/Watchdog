@@ -52,7 +52,6 @@ fun Navigation() {
         val libraryViewModel: LibraryViewModel =
             viewModel(factory = libraryFactory) // home screen viewmodel
 
-        println(libraryViewModel.favoriteWatchables.toString())
 
         val profileViewModel: ProfileViewModel = viewModel(factory = profileFactory)
 
@@ -70,6 +69,13 @@ fun Navigation() {
             }
             composable(route = Screen.Settings.route) {
                 SettingsScreen(navController = navController, homeViewModel = homeViewModel, logout = logout)
+            }
+            composable(route = Screen.AddProfile.route) {
+                EditProfileScreen(
+                    navController = navController,
+                    profileViewModel = profileViewModel,
+                    login = login
+                )
             }
         }
     } else {

@@ -25,9 +25,14 @@ fun LibraryScreen(
 ) {
     val currentList by libraryViewModel.currentList
 
+    val list by remember {
+        mutableStateOf(libraryViewModel.currentWatchables)
+    }
+
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
 
+    println("In LibraryScreen")
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -38,7 +43,7 @@ fun LibraryScreen(
         backgroundColor = Color(0xFF19191A)
     ) { padding ->
         println(padding)
-        LibraryWatchableList(listTitle = currentList, watchableList = libraryViewModel.currentWatchables, viewModel = libraryViewModel)
+        LibraryWatchableList(listTitle = currentList, watchableList = list, viewModel = libraryViewModel)
     }
 
     BackHandler {
