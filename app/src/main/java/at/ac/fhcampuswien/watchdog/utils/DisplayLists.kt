@@ -70,7 +70,9 @@ import kotlin.random.Random
 
 @Composable
 fun HorizontalWatchableList(
-    listTitle: String, watchableList: List<Watchable>, viewModel: HomeViewModel
+    listTitle: String,
+    watchableList: List<Watchable>,
+    viewModel: HomeViewModel
 ) {
 
     val coroutineScope = rememberCoroutineScope()
@@ -122,22 +124,21 @@ fun LibraryWatchableList(
             style = MaterialTheme.typography.h6,
             color = Color.White
         )
-        LazyGrid(List = watchableList, viewModel = viewModel)
+        LazyGrid(list = watchableList, viewModel = viewModel)
     })
 }
 
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun LazyGrid(List: List<Watchable>, viewModel: LibraryViewModel) {
-    //val movieList = homeViewModel.popularMovies //.collectAsState();
+fun LazyGrid(list: List<Watchable>, viewModel: LibraryViewModel) {
 
     LazyVerticalStaggeredGrid(
         columns = StaggeredGridCells.Fixed(2),
         verticalItemSpacing = 4.dp,
         horizontalArrangement = Arrangement.spacedBy(4.dp),
         content = {
-            items(List) { watchable ->
+            items(list) { watchable ->
                 viewModel.changeTags(watchable)
                 WatchableImage(
                     watchable = watchable,
@@ -175,28 +176,33 @@ fun WatchableImage(
     var popUpShown by remember {
         mutableStateOf(false)
     }
-
-    AsyncImage(model = watchable.poster,
+    AsyncImage(
+        model = watchable.poster,
         contentScale = ContentScale.Crop,
         contentDescription = null,
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
             .clip(RoundedCornerShape(12.dp))
-            .clickable { popUpShown = true })
+            .clickable { popUpShown = true }
+    )
     if (popUpShown) {
         if (watchable is Movie) {
-            MoviePopUp(movie = watchable,
+            MoviePopUp(
+                movie = watchable,
                 onToggleFavouriteClicked = onToggleFavouriteClicked,
                 onTogglePlannedClicked = onTogglePlannedClicked,
                 onToggleWatchedClicked = onToggleWatchedClicked,
-                onDismissRequest = { popUpShown = false })
+                onDismissRequest = { popUpShown = false }
+            )
         } else if (watchable is Series) {
-            SeriesPopUp(series = watchable,
+            SeriesPopUp(
+                series = watchable,
                 onToggleFavouriteClicked = onToggleFavouriteClicked,
                 onTogglePlannedClicked = onTogglePlannedClicked,
                 onToggleWatchedClicked = onToggleWatchedClicked,
-                onDismissRequest = { popUpShown = false })
+                onDismissRequest = { popUpShown = false }
+            )
         }
     }
 }
@@ -215,7 +221,8 @@ fun MoviePopUp(
 
     if (similarMovies.isEmpty()) fetchSimilarMovies(movieID = movie.TMDbID, movies = similarMovies)
 
-    WatchablePopUp(watchable = movie,
+    WatchablePopUp(
+        watchable = movie,
         onDismissRequest = onDismissRequest,
         onToggleFavouriteClicked = onToggleFavouriteClicked,
         onTogglePlannedClicked = onTogglePlannedClicked,
@@ -235,7 +242,8 @@ fun SeriesPopUp(
 ) {
     if (!series.hasAllDetails) fetchDetails(series)
 
-    WatchablePopUp(watchable = series,
+    WatchablePopUp(
+        watchable = series,
         onDismissRequest = onDismissRequest,
         onToggleFavouriteClicked = onToggleFavouriteClicked,
         onTogglePlannedClicked = onTogglePlannedClicked,
@@ -267,7 +275,8 @@ fun PopUpMoviesBottomContainer(movies: MutableList<Movie>) {
         /** For every 2 items, add a new Row */
         for (i in 0..movies.size step 2) {
             Row(
-                horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
             ) {
 
                 /** Movie */
@@ -286,7 +295,8 @@ fun PopUpMoviesBottomContainer(movies: MutableList<Movie>) {
                                 .height(150.dp)
                         ) {
                             AsyncImage(
-                                model = if (movies[j].widePoster.endsWith("original")) movies[j].poster
+                                model =
+                                if (movies[j].widePoster.endsWith("original")) movies[j].poster
                                 else movies[j].widePoster,
                                 contentScale = ContentScale.Crop,
                                 contentDescription = null,
@@ -368,9 +378,7 @@ fun PopUpSeriesBottomContainer(seasons: MutableList<Season>) {
             )
             return
         }
-        Text(
-            text = "Episodes", fontSize = MaterialTheme.typography.h6.fontSize, color = Color.White
-        )
+        Text(text = "Episodes", fontSize = MaterialTheme.typography.h6.fontSize, color = Color.White)
         Text(
             text = "Season ${seasons[seasonIndex].number}",
             fontSize = MaterialTheme.typography.h6.fontSize,
@@ -427,7 +435,8 @@ fun PopUpSeriesEpisodes(episodes: List<Episode>) {
     ) {
         for (episode in episodes) {
             Divider(
-                color = Color.DarkGray, thickness = 1.dp
+                color = Color.DarkGray,
+                thickness = 1.dp
             )
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -482,9 +491,11 @@ fun WatchablePopUp(
 
     /** To animate the popup size and position */
     val popupScale by animateFloatAsState(
-        targetValue = if (isExpanded) 1f else 0.3f, animationSpec = tween(durationMillis = 400)
+        targetValue = if (isExpanded) 1f else 0.3f,
+        animationSpec = tween(durationMillis = 400)
     )
-    val translateY by animateDpAsState(targetValue = if (isExpanded) 0.dp else 550.dp,
+    val translateY by animateDpAsState(
+        targetValue = if (isExpanded) 0.dp else 550.dp,
         animationSpec = tween(durationMillis = 650),
         finishedListener = {
             if (it == 0.dp) {
@@ -492,7 +503,8 @@ fun WatchablePopUp(
             } else if (it > 0.dp) {
                 onDismissRequest()
             }
-        })
+        }
+    )
 
     /** Trigger the animations 1 frame after they've been drawn
     so they're assured to been scaled correctly */
@@ -510,19 +522,22 @@ fun WatchablePopUp(
         Card(
             backgroundColor = outerBackgroundColor,
             elevation = 0.dp,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
         ) {
             /** Popup with movie detail content */
             Popup(alignment = Alignment.Center) {
-                Column(modifier = Modifier
-                    .fillMaxWidth(0.98f)
-                    .fillMaxHeight(0.9f)
-                    .background(innerBackgroundColor)
-                    .graphicsLayer {
-                        scaleX = popupScale
-                        scaleY = popupScale
-                        translationY = translateY.toPx()
-                    }) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth(0.98f)
+                        .fillMaxHeight(0.9f)
+                        .background(innerBackgroundColor)
+                        .graphicsLayer {
+                            scaleX = popupScale
+                            scaleY = popupScale
+                            translationY = translateY.toPx()
+                        }
+                ) {
                     Column(
                         modifier = Modifier
                             .background(Color.Black)
@@ -552,26 +567,32 @@ fun WatchablePopUp(
                                 ) {
 
                                     /** Favourite Icon */
-                                    ClickableIcon(isActive = watchable.isFavorite,
+                                    ClickableIcon(
+                                        isActive = watchable.isFavorite,
                                         activeIcon = Icons.Default.Favorite,
                                         passiveIcon = Icons.Default.FavoriteBorder,
                                         iconColor = Color(0xFFC71E1E),
                                         horizontalAnimation = true,
-                                        onIconClicked = { onToggleFavouriteClicked(watchable) })
+                                        onIconClicked = { onToggleFavouriteClicked(watchable) }
+                                    )
                                     /** Plan to watch Icon */
-                                    ClickableIcon(isActive = watchable.isPlanned,
+                                    ClickableIcon(
+                                        isActive = watchable.isPlanned,
                                         activeIcon = Icons.Default.Check,
                                         passiveIcon = Icons.Default.Add,
                                         iconColor = Color.White,
                                         horizontalAnimation = false,
-                                        onIconClicked = { onTogglePlannedClicked(watchable) })
+                                        onIconClicked = { onTogglePlannedClicked(watchable) }
+                                    )
                                     /** Completed Icon */
-                                    ClickableIcon(isActive = watchable.isWatched,
+                                    ClickableIcon(
+                                        isActive = watchable.isWatched,
                                         activeIcon = R.drawable.watched,
                                         passiveIcon = R.drawable.not_watched,
                                         iconColor = Color.White,
                                         horizontalAnimation = true,
-                                        onIconClicked = { onToggleWatchedClicked(watchable) })
+                                        onIconClicked = { onToggleWatchedClicked(watchable) }
+                                    )
                                 }
                                 PopUpLeftWatchableInformation(genres = watchable.genres)
 
@@ -587,9 +608,10 @@ fun WatchablePopUp(
                                 modifier = Modifier.weight(0.32f)
                             ) {
                                 PopUpRightWatchableInformation(
-                                    date = "Date", //watchable.getWatchableDate(),
+                                    date = watchable.getWatchableDate(),
                                     rating = watchable.rating,
-                                    length = if (watchable is Movie) "${watchable.length}"
+                                    length =
+                                    if (watchable is Movie) "${watchable.length}"
                                     else ""
                                 )
                             }
@@ -621,7 +643,9 @@ fun PopUpRightWatchableInformation(date: String, length: String, rating: Double)
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         /** Date */
         Text(
-            text = date, style = MaterialTheme.typography.body1, color = Color.LightGray
+            text = date,
+            style = MaterialTheme.typography.body1,
+            color = Color.LightGray
         )
         /** If movie, length */
         if (length != "0" && length.isNotEmpty()) {
@@ -634,7 +658,8 @@ fun PopUpRightWatchableInformation(date: String, length: String, rating: Double)
     }
     /** Rating */
     Row(
-        horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()
+        horizontalArrangement = Arrangement.End,
+        modifier = Modifier.fillMaxWidth()
     ) {
         Text(text = "Rating:", color = Color.Gray)
         Divider(modifier = Modifier.width(8.dp))
@@ -655,7 +680,9 @@ fun PopUpLeftWatchableInformation(genres: List<String>) {
         }
         text = text.removeRange(text.lastIndex - 1, text.lastIndex)
         Text(
-            text = text, style = MaterialTheme.typography.body1, color = Color.LightGray
+            text = text,
+            style = MaterialTheme.typography.body1,
+            color = Color.LightGray
         )
     }
 }
@@ -668,7 +695,8 @@ fun PopUpBackgroundImage(posters: List<String>, imageIndex: Int) {
         animationSpec = tween(3000),
         targetState = imageIndex,
     ) { idx ->
-        AsyncImage(model = posters[idx],
+        AsyncImage(
+            model = posters[idx],
             contentScale = ContentScale.Crop,
             contentDescription = "Background poster",
             modifier = Modifier
@@ -684,33 +712,38 @@ fun PopUpBackgroundImage(posters: List<String>, imageIndex: Int) {
                         drawContent()
                         drawRect(gradient, blendMode = BlendMode.Multiply)
                     }
-                })
+                }
+        )
     }
 }
 
 @Composable
 fun YoutubeScreen(
-    videoUrl: String, modifier: Modifier = Modifier
+    videoUrl: String,
+    modifier: Modifier = Modifier
 ) {
-    AndroidView(modifier = modifier, factory = { context ->
+    AndroidView(
+        modifier = modifier,
+        factory = { context ->
 
-        val webView = WebView(context)
-        webView.layoutParams = ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
-        )
-        webView.webViewClient = object : WebViewClient() {
-            override fun onPageFinished(view: WebView, url: String) {
-                super.onPageFinished(view, url)
-                // Call JavaScript function to simulate a click on the video element
-                webView.evaluateJavascript("document.getElementById('player').click();", null)
+            val webView = WebView(context)
+            webView.layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+            webView.webViewClient = object : WebViewClient() {
+                override fun onPageFinished(view: WebView, url: String) {
+                    super.onPageFinished(view, url)
+                    // Call JavaScript function to simulate a click on the video element
+                    webView.evaluateJavascript("document.getElementById('player').click();", null)
+                }
             }
-        }
 
-        val settings: WebSettings = webView.settings
-        settings.javaScriptEnabled = true
-        settings.mediaPlaybackRequiresUserGesture = false
+            val settings: WebSettings = webView.settings
+            settings.javaScriptEnabled = true
+            settings.mediaPlaybackRequiresUserGesture = false
 
-        val iframeHTML = """
+            val iframeHTML = """
                     <html>
                     <body style="margin:0px;padding:0px;">
                     <iframe id="player" width="100%" height="100%" src="${videoUrl}?autoplay=1" frameborder="0" allowfullscreen></iframe>
@@ -718,9 +751,10 @@ fun YoutubeScreen(
                     </html>
                 """.trimIndent()
 
-        webView.loadData(iframeHTML, "text/html", "utf-8")
-        webView
-    })
+            webView.loadData(iframeHTML, "text/html", "utf-8")
+            webView
+        }
+    )
 }
 
 @Composable
@@ -737,9 +771,12 @@ fun ClickableIcon(
         mutableStateOf(isActive)
     }
     val transition = updateTransition(targetState = active, label = "Icon Transition")
-    val iconRotation by transition.animateFloat(label = "", transitionSpec = {
-        tween(durationMillis = 300)
-    }) { activity ->
+    val iconRotation by transition.animateFloat(
+        label = "",
+        transitionSpec = {
+            tween(durationMillis = 300)
+        }
+    ) { activity ->
         if (activity) 0f else 180f
     }
 
@@ -747,12 +784,14 @@ fun ClickableIcon(
         onClick = {
             active = !active
             onIconClicked()
-        }, modifier = modifier.size(28.dp)
+        },
+        modifier = modifier.size(28.dp)
     ) {
         if (activeIcon is Int) {
             Icon(
                 painter = rememberAsyncImagePainter(
-                    model = if (active) activeIcon
+                    model =
+                    if (active) activeIcon
                     else passiveIcon
                 ),
                 contentDescription = "Icon",
@@ -760,7 +799,8 @@ fun ClickableIcon(
                 modifier = Modifier
                     .size(28.dp)
                     .graphicsLayer(
-                        rotationY = if (horizontalAnimation) iconRotation
+                        rotationY =
+                        if (horizontalAnimation) iconRotation
                         else 0f,
                         rotationZ = if (!horizontalAnimation) iconRotation
                         else 0f,
@@ -768,14 +808,16 @@ fun ClickableIcon(
             )
         } else if (activeIcon is ImageVector && passiveIcon is ImageVector) {
             Icon(
-                imageVector = if (active) activeIcon
+                imageVector =
+                if (active) activeIcon
                 else passiveIcon,
                 contentDescription = "Close Icon",
                 tint = iconColor,
                 modifier = Modifier
                     .size(28.dp)
                     .graphicsLayer(
-                        rotationY = if (horizontalAnimation) iconRotation
+                        rotationY =
+                        if (horizontalAnimation) iconRotation
                         else 0f,
                         rotationZ = if (!horizontalAnimation) iconRotation
                         else 0f,
@@ -788,7 +830,8 @@ fun ClickableIcon(
 @SuppressLint("NewApi")
 @Composable
 fun PopUpTopBox(
-    watchable: Watchable, onDismissRequest: () -> Unit
+    watchable: Watchable,
+    onDismissRequest: () -> Unit
 ) {
     val mod = Modifier
         .fillMaxWidth()
@@ -815,15 +858,16 @@ fun PopUpTopBox(
     val mainHandler = Handler(Looper.getMainLooper())
     val updateImage = object : Runnable {
         override fun run() {
-            if (watchable.detailPosters.isNotEmpty()) imageIndex =
-                Random.nextInt(watchable.detailPosters.size)
+            if (watchable.detailPosters.isNotEmpty())
+                imageIndex = Random.nextInt(watchable.detailPosters.size)
             mainHandler.postDelayed(this, 7000)
         }
     }
 
     if (visible) {
         visible = false
-        if (!mainHandler.hasCallbacks(updateImage)) mainHandler.postDelayed(updateImage, 7000)
+        if (!mainHandler.hasCallbacks(updateImage))
+            mainHandler.postDelayed(updateImage, 7000)
     }
 
     /** Image with title */
@@ -843,7 +887,8 @@ fun PopUpTopBox(
             onClick = {
                 visible = false
                 onDismissRequest()
-            }, modifier = Modifier.align(Alignment.TopEnd)
+            },
+            modifier = Modifier.align(Alignment.TopEnd)
         ) {
             Icon(
                 imageVector = Icons.Default.Close,
@@ -854,7 +899,7 @@ fun PopUpTopBox(
         }
         /** Title */
         Text(
-            text = "Title", // watchable.getWatchableTitle(),
+            text = watchable.getWatchableTitle(),
             modifier = Modifier
                 .align(Alignment.BottomStart)
                 .padding(6.dp)
@@ -864,7 +909,6 @@ fun PopUpTopBox(
         )
     }
 }
-
 
 @Composable
 fun ItemCard(

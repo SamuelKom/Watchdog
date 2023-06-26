@@ -7,10 +7,10 @@ import java.util.*
 class Movie(
 
     @SerializedName("title")
-    val title: String = "",
+    var title: String = "",
 
     @SerializedName("release_date")
-    val date: String = "",
+    var date: String = "",
 
     var length: Int = 0
 

@@ -10,7 +10,6 @@ import androidx.navigation.compose.rememberNavController
 import at.ac.fhcampuswien.watchdog.database.LibraryDatabase
 import at.ac.fhcampuswien.watchdog.database.UserDatabase
 import at.ac.fhcampuswien.watchdog.database.UserRepository
-import at.ac.fhcampuswien.watchdog.database.WatchableDatabase
 import at.ac.fhcampuswien.watchdog.database.WatchableRepository
 import at.ac.fhcampuswien.watchdog.screens.*
 import at.ac.fhcampuswien.watchdog.viewmodels.*

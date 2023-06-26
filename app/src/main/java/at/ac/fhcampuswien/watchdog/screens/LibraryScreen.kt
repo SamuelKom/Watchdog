@@ -6,6 +6,8 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,7 +21,6 @@ import kotlinx.coroutines.launch
 fun LibraryScreen(
     navController: NavController = rememberNavController(), libraryViewModel: LibraryViewModel
 ) {
-    val currentWatchablesState by libraryViewModel.currentWatchablesState.collectAsState()
     val currentList by libraryViewModel.currentList
 
     val scope = rememberCoroutineScope()
@@ -35,7 +36,7 @@ fun LibraryScreen(
         backgroundColor = Color(0xFF19191A)
     ) { padding ->
         println(padding)
-        LibraryWatchableList(listTitle = currentList, watchableList = currentWatchablesState, viewModel = libraryViewModel)
+        LibraryWatchableList(listTitle = currentList, watchableList = libraryViewModel.currentWatchables, viewModel = libraryViewModel)
     }
 
     BackHandler {

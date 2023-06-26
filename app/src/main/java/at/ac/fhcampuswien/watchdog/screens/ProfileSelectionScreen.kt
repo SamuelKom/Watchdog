@@ -35,6 +35,7 @@ import at.ac.fhcampuswien.watchdog.R
 import at.ac.fhcampuswien.watchdog.database.UserDatabase
 import at.ac.fhcampuswien.watchdog.database.UserRepository
 import at.ac.fhcampuswien.watchdog.models.User
+import at.ac.fhcampuswien.watchdog.models.Watchable
 import at.ac.fhcampuswien.watchdog.navigation.Navigation
 import at.ac.fhcampuswien.watchdog.viewmodels.ProfileViewModel
 import at.ac.fhcampuswien.watchdog.viewmodels.ProfileViewModelFactory
@@ -51,14 +52,21 @@ fun CheckLogin(navController: NavHostController, profileViewModel: ProfileViewMo
     println(user)
 
     if (user == null) {
-        ProfileScreen(navController)
+        ProfileScreen(
+            onLoginClicked = {
+                navController.navigate(Screen.Home.route)
+            },
+            onAddProfileClicked = {
+                navController.navigate(Screen.AddProfile.route)
+            }
+        )
     } else {
         navController.popBackStack(route = Screen.Home.route, inclusive = false)
     }
 }
 
 @Composable
-fun ProfileScreen(navController: NavHostController) {
+fun ProfileScreen(onLoginClicked: () -> Unit, onAddProfileClicked: () -> Unit) {
     val db = UserDatabase.getDatabase(LocalContext.current)
     val repository = UserRepository(userDao = db.userDao())
 
@@ -67,17 +75,18 @@ fun ProfileScreen(navController: NavHostController) {
 
     profileViewModel.addUser(
         User(
-            name = "Oliver",
-            color = Color.Blue.toArgb(),
-            favGenres = listOf("Anime", "Thriller").toString(),
-            theme = "black"
-        )
-    )
-    profileViewModel.addUser(
-        User(
             name = "Niklas",
             color = Color.Red.toArgb(),
             favGenres = listOf("Action", "Comedy").toString(),
+            theme = "black"
+        )
+    )
+
+    profileViewModel.addUser(
+        User(
+            name = "Oliver",
+            color = Color.Blue.toArgb(),
+            favGenres = listOf("Anime", "Thriller").toString(),
             theme = "black"
         )
     )
@@ -91,27 +100,22 @@ fun ProfileScreen(navController: NavHostController) {
         )
     )
 
-    val login = remember { mutableStateOf(false) }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        ProfileSelectionHeading()
 
-    if (login.value) {
-        Navigation()
-    } else {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            ProfileSelectionHeading()
+        ProfileRow(users = profileViewModel.users)
 
-            ProfileRow(users = profileViewModel.users)
+        LoginButton(onClick = onLoginClicked)
 
-            LoginButton(onClick = { login.value = true })
-
-            NewProfileButton(navController)
-        }
+        NewProfileButton(onClick = onAddProfileClicked)
     }
+
 }
 
 @Composable
@@ -209,21 +213,24 @@ fun ProfileRow(users: List<User>) {
             horizontalArrangement = Arrangement.Center
         ) {
             ProfileChangeButton(
-                onClick = { if (centeredUserIdx > 0) {
-                    coroutineScope.launch {
-                        /*launch {
-                            rotationState.animateTo(
-                                60f,
-                                animationSpec = tween(durationMillis = 800)
-                            )
-                        }*/
-                        targetRotationValue = 60f
-                        targetOffsetValue = 75f
-                        targetSizeDiffValue = 40f
+                onClick = {
+                    if (centeredUserIdx > 0) {
+                        coroutineScope.launch {
+                            /*launch {
+                                rotationState.animateTo(
+                                    60f,
+                                    animationSpec = tween(durationMillis = 800)
+                                )
+                            }*/
+                            targetRotationValue = 60f
+                            targetOffsetValue = 75f
+                            targetSizeDiffValue = 40f
+                        }
                     }
-                }},
+                },
                 right = false,
-                disabled = (centeredUserIdx==0))
+                disabled = (centeredUserIdx == 0)
+            )
 
             ProfileSelection(
                 offset = offsetState,
@@ -231,16 +238,19 @@ fun ProfileRow(users: List<User>) {
                 sizeDiff = sizeDiffState,
                 left = if (centeredUserIdx - 1 < 0) null else users[centeredUserIdx - 1],
                 middle = users[centeredUserIdx],
-                right = if (centeredUserIdx + 1 > users.size - 1) null else users[centeredUserIdx + 1])
+                right = if (centeredUserIdx + 1 > users.size - 1) null else users[centeredUserIdx + 1]
+            )
 
             ProfileChangeButton(
-                onClick = { if (centeredUserIdx < users.size - 1) {
-                    coroutineScope.launch {
-                        targetRotationValue = -60f
-                        targetOffsetValue = -75f
-                        targetSizeDiffValue = 40f
+                onClick = {
+                    if (centeredUserIdx < users.size - 1) {
+                        coroutineScope.launch {
+                            targetRotationValue = -60f
+                            targetOffsetValue = -75f
+                            targetSizeDiffValue = 40f
+                        }
                     }
-                }},
+                },
                 right = true,
                 disabled = (centeredUserIdx == (users.size - 1))
             )
@@ -251,9 +261,9 @@ fun ProfileRow(users: List<User>) {
 
 @Composable
 fun ProfileChangeButton(onClick: () -> Unit, right: Boolean, disabled: Boolean) {
-    Box (
+    Box(
         contentAlignment = if (right) Alignment.CenterEnd else Alignment.CenterStart
-            ){
+    ) {
         IconButton(
             onClick = onClick,
             modifier = Modifier.size(40.dp)
@@ -287,14 +297,16 @@ fun ProfileSelection(
             CircleWithLetter(
                 letter = left.name.substring(0, 1),
                 color = Color(left.color),
-                brush = Brush.horizontalGradient(
-                    colors = listOf(
-                        Color(left.color),
-                        Color.Transparent
-                    ),
-                    startX = 100f,
-                    endX = 0f
-                )
+                brush = if (rotation > -20 && rotation < 20) {
+                    Brush.horizontalGradient(
+                        colors = listOf(
+                            Color(left.color),
+                            Color.Transparent
+                        ),
+                        startX = 100f,
+                        endX = 0f
+                    )
+                } else null
             )
         }
     }
@@ -311,7 +323,7 @@ fun ProfileSelection(
             CircleWithLetter(
                 letter = right.name.substring(0, 1),
                 color = Color(right.color),
-                brush = if (rotation > -45 && rotation < 45) {
+                brush = if (rotation > -20 && rotation < 20) {
                     Brush.horizontalGradient(
                         colors = listOf(
                             Color(right.color),
@@ -328,13 +340,13 @@ fun ProfileSelection(
 
 @Composable
 fun CenteredProfile(middle: User, rotation: Float, offset: Float, sizeDiff: Float) {
-   Column(
+    Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.offset(x = offset.dp)
     ) {
-       if (rotation == 0f) {
-           Spacer(modifier = Modifier.height(32.dp))
-       }
+        if (rotation == 0f) {
+            Spacer(modifier = Modifier.height(32.dp))
+        }
 
         Box(
             modifier = Modifier
@@ -367,10 +379,10 @@ fun LoginButton(onClick: () -> Unit) {
             .height(35.dp)
             .background(Color.DarkGray, RoundedCornerShape(4.dp)),
     ) {
-        Row (
+        Row(
             modifier = Modifier.padding(start = 20.dp, end = 10.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
-        ){
+        ) {
             Text(
                 text = "Login",
                 color = Color.White,
@@ -389,7 +401,7 @@ fun LoginButton(onClick: () -> Unit) {
 }
 
 @Composable
-fun NewProfileButton(navController: NavHostController) {
+fun NewProfileButton(onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -399,7 +411,7 @@ fun NewProfileButton(navController: NavHostController) {
         // Content of the screen
 
         IconButton(
-            onClick = { navController.navigate(route = Screen.AddProfile.route) },
+            onClick = onClick,
             modifier = Modifier
                 .background(
                     color = Color.Black,

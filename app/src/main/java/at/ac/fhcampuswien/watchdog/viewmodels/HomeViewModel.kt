@@ -75,7 +75,6 @@ class HomeViewModel(private val repository: WatchableRepository) : ViewModel() {
         val item = LibraryItem(
             TMDbID = watchable.TMDbID,
             isMovie = watchable is Movie,
-            poster = watchable.poster,
             isFavorite = watchable.isFavorite,
             isWatched = watchable.isWatched,
             isPlanned = watchable.isPlanned
@@ -97,7 +96,6 @@ class HomeViewModel(private val repository: WatchableRepository) : ViewModel() {
         val item = LibraryItem(
             TMDbID = watchable.TMDbID,
             isMovie = watchable is Movie,
-            poster = watchable.poster,
             isFavorite = watchable.isFavorite,
             isWatched = watchable.isWatched,
             isPlanned = watchable.isPlanned
@@ -119,7 +117,6 @@ class HomeViewModel(private val repository: WatchableRepository) : ViewModel() {
         val item = LibraryItem(
             TMDbID = watchable.TMDbID,
             isMovie = watchable is Movie,
-            poster = watchable.poster,
             isFavorite = watchable.isFavorite,
             isWatched = watchable.isWatched,
             isPlanned = watchable.isPlanned

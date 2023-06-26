@@ -7,10 +7,10 @@ import java.util.*
 //@Entity(tableName = "series")
 class Series(
     @SerializedName("name")
-    val title: String = "",
+    var title: String = "",
 
     @SerializedName("first_air_date")
-    val startDate: String = "",
+    var startDate: String = "",
 
     var endDate: String = "",
 
