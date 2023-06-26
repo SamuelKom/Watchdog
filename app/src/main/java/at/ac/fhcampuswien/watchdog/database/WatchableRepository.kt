@@ -18,6 +18,8 @@ class WatchableRepository(private val libraryDao: LibraryDao) {
 
     fun getPlanned() = libraryDao.getPlanned()
 
+    fun getAll() = libraryDao.getAll()
+
     fun getByID(id: String) = libraryDao.getByID(id)
 
     fun exists(id: String) = libraryDao.isExists(id)

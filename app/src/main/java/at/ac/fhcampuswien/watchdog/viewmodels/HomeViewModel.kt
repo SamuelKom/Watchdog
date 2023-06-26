@@ -82,12 +82,6 @@ class HomeViewModel(private val repository: WatchableRepository) : ViewModel() {
     }
 
     suspend fun updateFavorite(watchable: Watchable) {
-        watchable.isFavorite.value = !watchable.isFavorite.value
-        val value: Boolean = watchable.isFavorite.value
-        if (value)
-            watchable.isFavorite.value = false
-
-        watchable.isWatched.value = !value
         val item = LibraryItem(
             TMDbID = watchable.TMDbID,
             isMovie = watchable is Movie,
@@ -108,7 +102,6 @@ class HomeViewModel(private val repository: WatchableRepository) : ViewModel() {
     }
 
     suspend fun updateComplete(watchable: Watchable) {
-        watchable.isWatched.value = !watchable.isWatched.value
         val item = LibraryItem(
             TMDbID = watchable.TMDbID,
             isMovie = watchable is Movie,
@@ -129,7 +122,6 @@ class HomeViewModel(private val repository: WatchableRepository) : ViewModel() {
     }
 
     suspend fun updatePlanned(watchable: Watchable) {
-        watchable.isPlanned.value = !watchable.isPlanned.value
         val item = LibraryItem(
             TMDbID = watchable.TMDbID,
             isMovie = watchable is Movie,

@@ -59,7 +59,6 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -169,7 +168,7 @@ fun LazyGrid(list: List<Watchable>, libraryViewModel: LibraryViewModel? = null, 
                     },
                     onToggleWatchedClicked = { watchedWatchable ->
                         coroutineScope.launch {
-                            libraryViewModel?.updateComplete(watchable = watchedWatchable)
+                            libraryViewModel?.updateWatched(watchable = watchedWatchable)
                             homeViewModel?.updateComplete(watchable = watchedWatchable)
                         }
                     }
@@ -375,10 +374,7 @@ fun PopUpSeriesBottomContainer(seasons: MutableList<Season>) {
     val rotation by animateFloatAsState(if (expanded) 180f else 0f)
 
     var seasonIndex by remember {
-        mutableStateOf(
-            if (seasons.isEmpty()) 0
-            else Random.nextInt(seasons.size)
-        )
+        mutableStateOf( 0 )
     }
 
     /** First Container */
@@ -604,6 +600,10 @@ fun WatchablePopUp(
                         ) {
                             showPopup = !showPopup
                             showBackground = !showBackground
+                            ///////////////////////////////////////////
+                            onToggleFavouriteClicked(watchable)
+                            onTogglePlannedClicked(watchable)
+                            onToggleWatchedClicked(watchable)
                         }
                         Row(
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -628,7 +628,10 @@ fun WatchablePopUp(
                                         passiveIcon = Icons.Default.FavoriteBorder,
                                         iconColor = Color(0xFFC71E1E),
                                         horizontalAnimation = true,
-                                        onIconClicked = { onToggleFavouriteClicked(watchable) }
+                                        onIconClicked = {
+                                            watchable.isFavorite.value = !watchable.isFavorite.value
+                                            //onToggleFavouriteClicked(watchable)
+                                        }
                                     )
                                     /** Plan to watch Icon */
                                     ClickableIcon(
@@ -637,7 +640,10 @@ fun WatchablePopUp(
                                         passiveIcon = Icons.Default.Add,
                                         iconColor = Color.White,
                                         horizontalAnimation = false,
-                                        onIconClicked = { onTogglePlannedClicked(watchable) }
+                                        onIconClicked = {
+                                            watchable.isPlanned.value = !watchable.isPlanned.value
+                                            //onTogglePlannedClicked(watchable)
+                                        }
                                     )
                                     /** Completed Icon */
                                     ClickableIcon(
@@ -646,7 +652,10 @@ fun WatchablePopUp(
                                         passiveIcon = R.drawable.not_watched,
                                         iconColor = Color.White,
                                         horizontalAnimation = true,
-                                        onIconClicked = { onToggleWatchedClicked(watchable) }
+                                        onIconClicked = {
+                                            watchable.isWatched.value = !watchable.isWatched.value
+                                            //onToggleWatchedClicked(watchable)
+                                        }
                                     )
                                 }
                                 PopUpLeftWatchableInformation(genres = watchable.genres)

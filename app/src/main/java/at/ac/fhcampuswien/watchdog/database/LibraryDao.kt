@@ -26,6 +26,9 @@ interface LibraryDao {
     @Query("Select * from library where isPlanned = 1")
     fun getPlanned(): Flow<List<LibraryItem>>
 
+    @Query("Select * from library")
+    fun getAll(): Flow<List<LibraryItem>>
+
     @Query("Select * from library where TMDbID=:id")
     fun getByID(id: String): Flow<LibraryItem>
 

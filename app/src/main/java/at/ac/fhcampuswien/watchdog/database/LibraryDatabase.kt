@@ -28,7 +28,7 @@ abstract class LibraryDatabase: RoomDatabase() {
 
         fun getDatabase(context: Context, userId: String): LibraryDatabase {
             return instances[userId] ?: synchronized(this) {
-                Room.databaseBuilder(context.applicationContext, LibraryDatabase::class.java, "watchable_db$userId")
+                Room.databaseBuilder(context.applicationContext, LibraryDatabase::class.java, "library")
                     .fallbackToDestructiveMigration()
                     .build()
                     .also {

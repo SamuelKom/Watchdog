@@ -125,7 +125,7 @@ fun fetchMoviesBySearchString(query: String, movies: MutableList<Movie>) {
 }
 
 fun fetchWatchablesByLibraryItems(libraryItems: List<LibraryItem>, watchables: MutableList<Watchable>) {
-
+    watchables.clear()
     for (item in libraryItems) {
         if (item.isMovie) {
             val movie = Movie()
