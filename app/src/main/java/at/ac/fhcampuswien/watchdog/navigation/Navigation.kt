@@ -34,7 +34,6 @@ fun Navigation() {
         sharedPrefs.edit().remove("user").apply()
     }
 
-    println("Up here")
     if (loggedIn) {
         val userID = sharedPrefs.getString("user", null)
 
@@ -52,9 +51,7 @@ fun Navigation() {
         val profileFactory = ProfileViewModelFactory(userRepository)
 
         val profileViewModel: ProfileViewModel = viewModel(factory = profileFactory)
-        println("User ID: " + userID)
         if (profileViewModel.getUserById(userID!!) == null) {
-            println("In here")
             logout()
             return
         }
@@ -62,7 +59,6 @@ fun Navigation() {
         val homeViewModel: HomeViewModel = viewModel(factory = homeFactory) // home screen viewmodel
         val libraryViewModel: LibraryViewModel = viewModel(factory = libraryFactory) // home screen viewmodel
 
-        println("User: " + profileViewModel.getUserById(userID))
 
         val navController = rememberNavController()
 

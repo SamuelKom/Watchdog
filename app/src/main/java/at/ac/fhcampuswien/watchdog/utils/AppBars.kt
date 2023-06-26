@@ -120,10 +120,11 @@ fun SideBar(
 
 
 @Composable
-fun LibraryTopBar(modifier: Modifier, libraryViewModel: LibraryViewModel) {
+fun LibraryTopBar(modifier: Modifier, libraryViewModel: LibraryViewModel, color: Color) {
 
     var selectedList by remember { mutableStateOf(0) }
     TopAppBar(
+        backgroundColor = color,
         elevation = AppBarDefaults.TopAppBarElevation
     ) {
         Row(
@@ -132,7 +133,6 @@ fun LibraryTopBar(modifier: Modifier, libraryViewModel: LibraryViewModel) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column {
-                //Icon(imageVector = Screen.Favorites.icon, contentDescription = Screen.Favorites.title)
                 Text(
                     text = Screen.Favorites.title,
                     modifier = Modifier
@@ -141,13 +141,14 @@ fun LibraryTopBar(modifier: Modifier, libraryViewModel: LibraryViewModel) {
                             libraryViewModel.changeList(Screen.Favorites.title)
                         },
                     color =
-                    if (selectedList == 0) Color.White
+                    if (selectedList == 0) {
+                        getNegativeColor(color)
+                    }
                     else Color.Gray
                 )
 
             }
             Column {
-                //Icon(imageVector = Screen.Completed.icon, contentDescription = Screen.Completed.title)
                 Text(
                     text = Screen.Watched.title,
                     Modifier
@@ -156,12 +157,13 @@ fun LibraryTopBar(modifier: Modifier, libraryViewModel: LibraryViewModel) {
                             libraryViewModel.changeList(Screen.Watched.title)
                         },
                     color =
-                    if (selectedList == 1) Color.White
+                    if (selectedList == 1) {
+                        getNegativeColor(color)
+                    }
                     else Color.Gray
                 )
             }
             Column {
-                //Icon(imageVector = Screen.Planned.icon, contentDescription = Screen.Planned.title)
                 Text(
                     text = Screen.Planned.title,
                     Modifier
@@ -170,7 +172,9 @@ fun LibraryTopBar(modifier: Modifier, libraryViewModel: LibraryViewModel) {
                             libraryViewModel.changeList(Screen.Planned.title)
                         },
                     color =
-                    if (selectedList == 2) Color.White
+                    if (selectedList == 2) {
+                        getNegativeColor(color)
+                    }
                     else Color.Gray
                 )
             }

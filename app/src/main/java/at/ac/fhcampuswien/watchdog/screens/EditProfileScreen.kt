@@ -159,7 +159,7 @@ fun ColorRow(selectedColor: Color?, onChange: (Color) -> Unit) {
             horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             val colors: List<Color> = listOf(
-                Color(0xFF64070A), Color(0xFF393D55), Color(0xFF1A203F), Color(0xFF680A79), Color(0xFFB39E1B)
+                Color(0xFF64070A), Color(0xFF393D55), Color(0xFF1A203F), Color(0xFF580766), Color(0xFF0E5011)
             )
 
             for (color in colors) {
