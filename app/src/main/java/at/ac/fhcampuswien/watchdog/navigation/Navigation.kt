@@ -74,7 +74,6 @@ fun Navigation() {
                 LibraryScreen(navController = navController, libraryViewModel = libraryViewModel, color = Color(profileViewModel.getUserById(userID)!!.color), logout = logout)
             }
             composable(route = Screen.Account.route) {
-                AccountScreen(navController = navController, profileViewModel = profileViewModel, logout = logout, userId = user!!, libraryViewModel = libraryViewModel)
                 AccountScreen(navController = navController, logout = logout, user = profileViewModel.getUserById(userID)!!, profileViewModel = profileViewModel, libraryViewModel = libraryViewModel)
             }
             composable(route = Screen.Settings.route) {
