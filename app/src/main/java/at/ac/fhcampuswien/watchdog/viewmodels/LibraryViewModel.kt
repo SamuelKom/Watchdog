@@ -13,9 +13,6 @@ import at.ac.fhcampuswien.watchdog.models.Watchable
 import at.ac.fhcampuswien.watchdog.screens.Screen
 import at.ac.fhcampuswien.watchdog.tmdb_api.fetchWatchablesByLibraryItems
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class LibraryViewModel(private val repository: WatchableRepository): ViewModel() {
@@ -78,6 +75,14 @@ class LibraryViewModel(private val repository: WatchableRepository): ViewModel()
                 updateCurrentWatchables()
             }
         }
+    }
+
+    fun getListSizesFWP(): Triple<Int, Int, Int> {
+        return Triple(
+            _favorites.size,
+            _watched.size,
+            _planned.size
+        )
     }
 
     fun updateFavorite(watchable: Watchable) {
