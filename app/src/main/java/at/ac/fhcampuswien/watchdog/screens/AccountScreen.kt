@@ -11,11 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -27,6 +23,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import at.ac.fhcampuswien.watchdog.utils.BotNavBar
 import at.ac.fhcampuswien.watchdog.utils.SideBar
+import at.ac.fhcampuswien.watchdog.viewmodels.LibraryViewModel
 import at.ac.fhcampuswien.watchdog.viewmodels.ProfileViewModel
 import kotlinx.coroutines.launch
 
@@ -35,14 +32,13 @@ fun AccountScreen(
     navController: NavController = rememberNavController(),
     logout: () -> Unit,
     profileViewModel: ProfileViewModel,
+    libraryViewModel: LibraryViewModel,
     userId: String
 ) {
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
 
     val user = profileViewModel.getUserById(userId)!!
-
-    var editClicked by remember { mutableStateOf(false) }
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -106,9 +102,11 @@ fun AccountScreen(
                     .padding(top = 20.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                TextColumn(number = 0, label = "Favourites")
-                TextColumn(number = 0, label = "Watched")
-                TextColumn(number = 0, label = "Planned")
+                val numbers = libraryViewModel.getListSizesFWP()
+
+                TextColumn(number = numbers.first, label = "Favourites")
+                TextColumn(number = numbers.second, label = "Watched")
+                TextColumn(number = numbers.third, label = "Planned")
             }
 
             Spacer(modifier = Modifier.height(18.dp))

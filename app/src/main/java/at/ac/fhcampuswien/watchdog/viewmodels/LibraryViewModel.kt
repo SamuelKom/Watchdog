@@ -75,7 +75,13 @@ class LibraryViewModel(private val repository: WatchableRepository): ViewModel()
             }
         }
     }
-
+    fun getListSizesFWP(): Triple<Int, Int, Int> {
+        return Triple(
+            _favorites.size,
+            _watched.size,
+            _planned.size
+        )
+    }
     fun update(watchable: Watchable) {
 
         val item = LibraryItem(
