@@ -119,7 +119,7 @@ fun LibraryTopBar(modifier: Modifier, libraryViewModel: LibraryViewModel) {
             Column {
                 //Icon(imageVector = Screen.Favorites.icon, contentDescription = Screen.Favorites.title)
                 Text(text = Screen.Favorites.title, Modifier.clickable {
-                    libraryViewModel.changeList(0)
+                    libraryViewModel.changeList(Screen.Favorites.title)
                 })
 
             }
@@ -127,14 +127,14 @@ fun LibraryTopBar(modifier: Modifier, libraryViewModel: LibraryViewModel) {
             Column {
                 //Icon(imageVector = Screen.Completed.icon, contentDescription = Screen.Completed.title)
                 Text(text = Screen.Watched.title, Modifier.clickable {
-                    libraryViewModel.changeList(1)
+                    libraryViewModel.changeList(Screen.Watched.title)
                 })
             }
 
             Column {
                 //Icon(imageVector = Screen.Planned.icon, contentDescription = Screen.Planned.title)
                 Text(text = Screen.Planned.title, Modifier.clickable {
-                    libraryViewModel.changeList(2)
+                    libraryViewModel.changeList(Screen.Planned.title)
                 })
             }
         }

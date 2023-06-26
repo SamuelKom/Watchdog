@@ -14,11 +14,6 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.BlendMode
@@ -55,7 +50,8 @@ import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ExposedDropdownMenuBox
-import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.ThumbUp
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -97,20 +93,10 @@ fun HorizontalWatchableList(
                 items(watchableList) { watchable ->
                     viewModel.changeTags(watchable)
                     WatchableImage(watchable = watchable,
-                        onToggleFavouriteClicked = { favouriteWatchable ->
+                        onToggleClicked = { favouriteWatchable ->
                             coroutineScope.launch {
                                 println("On favourite clicked: " + favouriteWatchable)
-                                viewModel.updateFavorite(watchable = favouriteWatchable)
-                            }
-                        },
-                        onTogglePlannedClicked = { plannedWatchable ->
-                            coroutineScope.launch {
-                                viewModel.updatePlanned(watchable = plannedWatchable)
-                            }
-                        },
-                        onToggleWatchedClicked = { watchedWatchable ->
-                            coroutineScope.launch {
-                                viewModel.updateComplete(watchable = watchedWatchable)
+                                viewModel.update(watchable = favouriteWatchable)
                             }
                         }
                     )
@@ -154,22 +140,10 @@ fun LazyGrid(list: List<Watchable>, libraryViewModel: LibraryViewModel? = null, 
                 homeViewModel?.changeTags(watchable)
                 WatchableImage(
                     watchable = watchable,
-                    onToggleFavouriteClicked = { favouriteWatchable ->
+                    onToggleClicked = { favouriteWatchable ->
                         coroutineScope.launch {
-                            libraryViewModel?.updateFavorite(watchable = favouriteWatchable)
-                            homeViewModel?.updateFavorite(watchable = favouriteWatchable)
-                        }
-                    },
-                    onTogglePlannedClicked = { plannedWatchable ->
-                        coroutineScope.launch {
-                            libraryViewModel?.updatePlanned(watchable = plannedWatchable)
-                            homeViewModel?.updatePlanned(watchable = plannedWatchable)
-                        }
-                    },
-                    onToggleWatchedClicked = { watchedWatchable ->
-                        coroutineScope.launch {
-                            libraryViewModel?.updateWatched(watchable = watchedWatchable)
-                            homeViewModel?.updateComplete(watchable = watchedWatchable)
+                            libraryViewModel?.update(watchable = favouriteWatchable)
+                            homeViewModel?.update(watchable = favouriteWatchable)
                         }
                     }
                 )
@@ -184,9 +158,7 @@ fun LazyGrid(list: List<Watchable>, libraryViewModel: LibraryViewModel? = null, 
 @Composable
 fun WatchableImage(
     watchable: Watchable,
-    onToggleFavouriteClicked: (Watchable) -> Unit,
-    onTogglePlannedClicked: (Watchable) -> Unit,
-    onToggleWatchedClicked: (Watchable) -> Unit
+    onToggleClicked: (Watchable) -> Unit
 ) {
     var popUpShown by remember {
         mutableStateOf(false)
@@ -205,18 +177,18 @@ fun WatchableImage(
         if (watchable is Movie) {
             MoviePopUp(
                 movie = watchable,
-                onToggleFavouriteClicked = onToggleFavouriteClicked,
-                onTogglePlannedClicked = onTogglePlannedClicked,
-                onToggleWatchedClicked = onToggleWatchedClicked,
-                onDismissRequest = { popUpShown = false }
+                onDismissRequest = {
+                    popUpShown = false
+                    onToggleClicked(watchable)
+                }
             )
         } else if (watchable is Series) {
             SeriesPopUp(
                 series = watchable,
-                onToggleFavouriteClicked = onToggleFavouriteClicked,
-                onTogglePlannedClicked = onTogglePlannedClicked,
-                onToggleWatchedClicked = onToggleWatchedClicked,
-                onDismissRequest = { popUpShown = false }
+                onDismissRequest = {
+                    popUpShown = false
+                    onToggleClicked(watchable)
+                }
             )
         }
     }
@@ -225,10 +197,7 @@ fun WatchableImage(
 @Composable
 fun MoviePopUp(
     movie: Movie,
-    onDismissRequest: () -> Unit,
-    onToggleFavouriteClicked: (Watchable) -> Unit,
-    onTogglePlannedClicked: (Watchable) -> Unit,
-    onToggleWatchedClicked: (Watchable) -> Unit
+    onDismissRequest: () -> Unit
 ) {
     if (!movie.hasAllDetails) fetchDetails(movie)
 
@@ -239,9 +208,6 @@ fun MoviePopUp(
     WatchablePopUp(
         watchable = movie,
         onDismissRequest = onDismissRequest,
-        onToggleFavouriteClicked = onToggleFavouriteClicked,
-        onTogglePlannedClicked = onTogglePlannedClicked,
-        onToggleWatchedClicked = onToggleWatchedClicked,
         bottomContent = {
             PopUpMoviesBottomContainer(similarMovies)
         })
@@ -250,19 +216,13 @@ fun MoviePopUp(
 @Composable
 fun SeriesPopUp(
     series: Series,
-    onDismissRequest: () -> Unit,
-    onToggleFavouriteClicked: (Watchable) -> Unit,
-    onTogglePlannedClicked: (Watchable) -> Unit,
-    onToggleWatchedClicked: (Watchable) -> Unit
+    onDismissRequest: () -> Unit
 ) {
     if (!series.hasAllDetails) fetchDetails(series)
 
     WatchablePopUp(
         watchable = series,
         onDismissRequest = onDismissRequest,
-        onToggleFavouriteClicked = onToggleFavouriteClicked,
-        onTogglePlannedClicked = onTogglePlannedClicked,
-        onToggleWatchedClicked = onToggleWatchedClicked,
         bottomContent = {
             PopUpSeriesBottomContainer(seasons = series.seasons)
         })
@@ -520,10 +480,7 @@ fun PopUpSeriesEpisodes(episodes: List<Episode>) {
 fun WatchablePopUp(
     watchable: Watchable,
     bottomContent: @Composable () -> Unit,
-    onDismissRequest: () -> Unit,
-    onToggleFavouriteClicked: (Watchable) -> Unit,
-    onTogglePlannedClicked: (Watchable) -> Unit,
-    onToggleWatchedClicked: (Watchable) -> Unit
+    onDismissRequest: () -> Unit
 ) {
     //println("Watchable ID: " + watchable.TMDbID)
     var showBackground by remember { mutableStateOf(false) }
@@ -600,10 +557,7 @@ fun WatchablePopUp(
                         ) {
                             showPopup = !showPopup
                             showBackground = !showBackground
-                            ///////////////////////////////////////////
-                            onToggleFavouriteClicked(watchable)
-                            onTogglePlannedClicked(watchable)
-                            onToggleWatchedClicked(watchable)
+                            onDismissRequest()
                         }
                         Row(
                             horizontalArrangement = Arrangement.SpaceBetween,
@@ -654,6 +608,30 @@ fun WatchablePopUp(
                                         horizontalAnimation = true,
                                         onIconClicked = {
                                             watchable.isWatched.value = !watchable.isWatched.value
+                                            //onToggleWatchedClicked(watchable)
+                                        }
+                                    )
+                                    /** Liked Icon */
+                                    ClickableIcon(
+                                        isActive = watchable.isLiked.value,
+                                        activeIcon = Icons.Filled.ThumbUp,
+                                        passiveIcon = Icons.Outlined.ThumbUp,
+                                        iconColor = Color.White,
+                                        horizontalAnimation = true,
+                                        onIconClicked = {
+                                            watchable.isLiked.value = !watchable.isLiked.value
+                                            //onToggleWatchedClicked(watchable)
+                                        }
+                                    )
+                                    /** Disliked Icon */
+                                    ClickableIcon(
+                                        isActive = watchable.isDisliked.value,
+                                        activeIcon = R.drawable.thumb_down_fill,
+                                        passiveIcon = R.drawable.thumb_down,
+                                        iconColor = Color.White,
+                                        horizontalAnimation = true,
+                                        onIconClicked = {
+                                            watchable.isDisliked.value = !watchable.isDisliked.value
                                             //onToggleWatchedClicked(watchable)
                                         }
                                     )

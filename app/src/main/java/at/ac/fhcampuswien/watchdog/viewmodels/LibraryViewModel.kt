@@ -13,9 +13,6 @@ import at.ac.fhcampuswien.watchdog.models.Watchable
 import at.ac.fhcampuswien.watchdog.screens.Screen
 import at.ac.fhcampuswien.watchdog.tmdb_api.fetchWatchablesByLibraryItems
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class LibraryViewModel(private val repository: WatchableRepository): ViewModel() {
@@ -38,7 +35,6 @@ class LibraryViewModel(private val repository: WatchableRepository): ViewModel()
             repository.getFavorites().collect { favoriteList ->
                 fetchWatchablesByLibraryItems(favoriteList, _favorites)
                 println("updating fav")
-                updateCurrentWatchables()
             }
         }
         viewModelScope.launch {
@@ -63,31 +59,33 @@ class LibraryViewModel(private val repository: WatchableRepository): ViewModel()
         }
     }
 
-    fun changeList(type: Int) {
+    fun changeList(type: String) {
         when (type) {
-            0 -> {
+            Screen.Favorites.title -> {
                 _currentList.value = Screen.Favorites.title
                 updateCurrentWatchables()
             }
-            1 -> {
+            Screen.Watched.title -> {
                 _currentList.value = Screen.Watched.title
                 updateCurrentWatchables()
             }
-            2 -> {
+            Screen.Planned.title -> {
                 _currentList.value = Screen.Planned.title
                 updateCurrentWatchables()
             }
         }
     }
 
-    fun updateFavorite(watchable: Watchable) {
+    fun update(watchable: Watchable) {
 
         val item = LibraryItem(
             TMDbID = watchable.TMDbID,
             isMovie = watchable is Movie,
             isFavorite = watchable.isFavorite.value,
             isWatched = watchable.isWatched.value,
-            isPlanned = watchable.isPlanned.value
+            isPlanned = watchable.isPlanned.value,
+            isDisliked = watchable.isDisliked.value,
+            isLiked = watchable.isLiked.value
         )
 
         viewModelScope.launch(Dispatchers.IO) {
@@ -98,70 +96,6 @@ class LibraryViewModel(private val repository: WatchableRepository): ViewModel()
                 repository.addLibraryItem(item)
             }
         }
-
-        if (watchable.isFavorite.value) {
-            _favorites.add(watchable)
-        } else {
-            _favorites.remove(watchable)
-        }
-
-        updateCurrentWatchables()
-    }
-
-    fun updateWatched(watchable: Watchable) {
-
-        val item = LibraryItem(
-            TMDbID = watchable.TMDbID,
-            isMovie = watchable is Movie,
-            isFavorite = watchable.isFavorite.value,
-            isWatched = watchable.isWatched.value,
-            isPlanned = watchable.isPlanned.value
-        )
-
-        viewModelScope.launch(Dispatchers.IO) {
-            if (repository.exists(watchable.TMDbID.toString())) {
-                repository.updateLibraryItem(item)
-                repository.cleanTable()
-            } else {
-                repository.addLibraryItem(item)
-            }
-        }
-
-        if (watchable.isWatched.value) {
-            _watched.add(watchable)
-        } else {
-            _watched.remove(watchable)
-        }
-
-        updateCurrentWatchables()
-    }
-
-    fun updatePlanned(watchable: Watchable) {
-
-        val item = LibraryItem(
-            TMDbID = watchable.TMDbID,
-            isMovie = watchable is Movie,
-            isFavorite = watchable.isFavorite.value,
-            isWatched = watchable.isWatched.value,
-            isPlanned = watchable.isPlanned.value
-        )
-
-        viewModelScope.launch(Dispatchers.IO) {
-            if (repository.exists(watchable.TMDbID.toString())) {
-                repository.updateLibraryItem(item)
-                repository.cleanTable()
-            } else {
-                repository.addLibraryItem(item)
-            }
-        }
-
-        if (watchable.isPlanned.value) {
-            _planned.add(watchable)
-        } else {
-            _planned.remove(watchable)
-        }
-
-        updateCurrentWatchables()
     }
 
     fun changeTags(watchable: Watchable){
@@ -172,6 +106,8 @@ class LibraryViewModel(private val repository: WatchableRepository): ViewModel()
                         watchable.isFavorite.value = it.isFavorite
                         watchable.isWatched.value = it.isWatched
                         watchable.isPlanned.value = it.isPlanned
+                        watchable.isLiked.value = it.isLiked
+                        watchable.isDisliked.value = it.isDisliked
                     }
 
                 }

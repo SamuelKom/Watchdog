@@ -13,7 +13,7 @@ import at.ac.fhcampuswien.watchdog.models.Watchable
 
 @Database(
     entities = [LibraryItem::class],
-    version = 9,
+    version = 10,
     exportSchema = false
 )
 
