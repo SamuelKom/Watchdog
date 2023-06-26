@@ -11,7 +11,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -21,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import at.ac.fhcampuswien.watchdog.models.User
 import at.ac.fhcampuswien.watchdog.utils.BotNavBar
 import at.ac.fhcampuswien.watchdog.utils.SideBar
 import at.ac.fhcampuswien.watchdog.viewmodels.LibraryViewModel
@@ -30,21 +35,22 @@ import kotlinx.coroutines.launch
 @Composable
 fun AccountScreen(
     navController: NavController = rememberNavController(),
-    logout: () -> Unit,
     profileViewModel: ProfileViewModel,
     libraryViewModel: LibraryViewModel,
-    userId: String
+    logout: () -> Unit,
+    user: User
 ) {
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
 
-    val user = profileViewModel.getUserById(userId)!!
+    var editClicked by remember { mutableStateOf(false) }
+
 
     Scaffold(
         scaffoldState = scaffoldState,
         drawerContent = { SideBar(modifier = Modifier, navController = navController, items = getSideScreens(), scaffoldState = scaffoldState, logout = logout) },
         drawerBackgroundColor = Color(0xFF19191A),
-        bottomBar = { BotNavBar(navController = navController, scaffoldState = scaffoldState) },
+        bottomBar = { BotNavBar(navController = navController, scaffoldState = scaffoldState, color = Color(user.color)) },
         backgroundColor = Color(0xFF19191A)
     ) { padding ->
         Column(

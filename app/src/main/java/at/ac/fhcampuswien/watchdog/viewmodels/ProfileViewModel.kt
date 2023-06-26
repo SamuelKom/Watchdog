@@ -36,6 +36,8 @@ class ProfileViewModel(private val repository: UserRepository): ViewModel() {
     }
 
     fun getUserById(id: String): User? {
+        println("Searching for user")
+        println("User: " + _users.value.firstOrNull{ it?.id == id })
         return _users.value.firstOrNull{ it?.id == id }
     }
 

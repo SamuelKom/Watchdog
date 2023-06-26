@@ -19,27 +19,25 @@ import kotlinx.coroutines.launch
 fun LibraryScreen(
     navController: NavController = rememberNavController(),
     libraryViewModel: LibraryViewModel,
+    color: Color,
     logout: () -> Unit
 ) {
     val currentList by libraryViewModel.currentList
-
     val list = libraryViewModel.currentWatchables.value
 
     val scope = rememberCoroutineScope()
     val scaffoldState = rememberScaffoldState()
 
-    println("In LibraryScreen")
-
     Scaffold(
         scaffoldState = scaffoldState,
         drawerContent = { SideBar(modifier = Modifier, navController = navController, items = getSideScreens(), scaffoldState = scaffoldState, logout = logout) },
         drawerBackgroundColor = Color(0xFF19191A),
-        bottomBar = { BotNavBar(navController = navController, scaffoldState = scaffoldState) },
+        bottomBar = { BotNavBar(navController = navController, scaffoldState = scaffoldState, color = color) },
         topBar = { LibraryTopBar(modifier = Modifier, libraryViewModel = libraryViewModel) },
         backgroundColor = Color(0xFF19191A)
     ) { padding ->
         println(padding)
-        LibraryWatchableList(listTitle = currentList, watchableList = list, viewModel = libraryViewModel)
+        LibraryWatchableList(watchableList = list, viewModel = libraryViewModel)
     }
 
     BackHandler {

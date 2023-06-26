@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import at.ac.fhcampuswien.watchdog.models.User
 import at.ac.fhcampuswien.watchdog.utils.BotNavBar
 import at.ac.fhcampuswien.watchdog.utils.SideBar
 import at.ac.fhcampuswien.watchdog.viewmodels.HomeViewModel
@@ -21,6 +22,7 @@ import kotlinx.coroutines.launch
 fun SettingsScreen(
     navController: NavController = rememberNavController(),
     homeViewModel: HomeViewModel,
+    user: User,
     logout: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -29,7 +31,7 @@ fun SettingsScreen(
         scaffoldState = scaffoldState,
         drawerContent = { SideBar(modifier = Modifier, navController = navController, items = getSideScreens(), scaffoldState = scaffoldState, logout = logout) },
         drawerBackgroundColor = Color(0xFF19191A),
-        bottomBar = { BotNavBar(navController = navController, scaffoldState = scaffoldState) },
+        bottomBar = { BotNavBar(navController = navController, scaffoldState = scaffoldState, color = Color(user.color)) },
         backgroundColor = Color(0xFF19191A)
     ) { padding ->
         Column(modifier = Modifier.padding(padding)) {

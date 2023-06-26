@@ -33,6 +33,8 @@ open class Watchable(
     var isFavorite : MutableState<Boolean> = mutableStateOf(false),
     var isWatched : MutableState<Boolean> = mutableStateOf(false),
     var isPlanned : MutableState<Boolean> = mutableStateOf(false),
+    var isLiked : MutableState<Boolean> = mutableStateOf(false),
+    var isDisliked : MutableState<Boolean> = mutableStateOf(false),
 
     var hasAllDetails: Boolean = false
     ) {

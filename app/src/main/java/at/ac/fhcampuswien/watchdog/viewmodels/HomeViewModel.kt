@@ -81,53 +81,15 @@ class HomeViewModel(private val repository: WatchableRepository) : ViewModel() {
         }
     }
 
-    suspend fun updateFavorite(watchable: Watchable) {
+    suspend fun update(watchable: Watchable) {
         val item = LibraryItem(
             TMDbID = watchable.TMDbID,
             isMovie = watchable is Movie,
             isFavorite = watchable.isFavorite.value,
             isWatched = watchable.isWatched.value,
-            isPlanned = watchable.isPlanned.value
-        )
-        viewModelScope.launch(Dispatchers.IO) {
-            coroutineScope {
-                if (repository.exists(watchable.TMDbID.toString())) {
-                    repository.updateLibraryItem(item)
-                    repository.cleanTable()
-                } else {
-                    repository.addLibraryItem(item)
-                }
-            }
-        }
-    }
-
-    suspend fun updateComplete(watchable: Watchable) {
-        val item = LibraryItem(
-            TMDbID = watchable.TMDbID,
-            isMovie = watchable is Movie,
-            isFavorite = watchable.isFavorite.value,
-            isWatched = watchable.isWatched.value,
-            isPlanned = watchable.isPlanned.value
-        )
-        viewModelScope.launch(Dispatchers.IO) {
-            coroutineScope {
-                if (repository.exists(watchable.TMDbID.toString())) {
-                    repository.updateLibraryItem(item)
-                    repository.cleanTable()
-                } else {
-                    repository.addLibraryItem(item)
-                }
-            }
-        }
-    }
-
-    suspend fun updatePlanned(watchable: Watchable) {
-        val item = LibraryItem(
-            TMDbID = watchable.TMDbID,
-            isMovie = watchable is Movie,
-            isFavorite = watchable.isFavorite.value,
-            isWatched = watchable.isWatched.value,
-            isPlanned = watchable.isPlanned.value
+            isPlanned = watchable.isPlanned.value,
+            isDisliked = watchable.isDisliked.value,
+            isLiked = watchable.isLiked.value
         )
         viewModelScope.launch(Dispatchers.IO) {
             coroutineScope {
@@ -149,8 +111,9 @@ class HomeViewModel(private val repository: WatchableRepository) : ViewModel() {
                         watchable.isFavorite.value = it.isFavorite
                         watchable.isWatched.value = it.isWatched
                         watchable.isPlanned.value = it.isPlanned
+                        watchable.isLiked.value = it.isLiked
+                        watchable.isDisliked.value = it.isDisliked
                     }
-
                 }
             }
         }
