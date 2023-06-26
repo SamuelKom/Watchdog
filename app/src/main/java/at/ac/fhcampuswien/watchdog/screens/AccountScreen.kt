@@ -92,15 +92,16 @@ fun AccountScreen(
                     .padding(top = 20.dp),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                TextColumn(number = 13, label = "Favourites")
-                TextColumn(number = 73, label = "Watched")
-                TextColumn(number = 7, label = "Planned")
+                TextColumn(number = 0, label = "Favourites")
+                TextColumn(number = 0, label = "Watched")
+                TextColumn(number = 0, label = "Planned")
             }
 
             Spacer(modifier = Modifier.height(18.dp))
 
             //val genres: List<String> = listOf("Action", "Comedy", "Horror")
-            FavouriteGenresRow(genres = user.favGenres.drop(1).dropLast(1).split(",").map { it.trim() })
+            println(user.favGenres)
+            FavouriteGenresRow(genres = user.favGenres.drop(1).dropLast(1).split(","))
         }
     }
 

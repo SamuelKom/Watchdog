@@ -1,19 +1,14 @@
 package at.ac.fhcampuswien.watchdog.viewmodels
 
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import at.ac.fhcampuswien.watchdog.database.UserRepository
 import at.ac.fhcampuswien.watchdog.models.User
-import at.ac.fhcampuswien.watchdog.models.Watchable
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
 class ProfileViewModel(private val repository: UserRepository): ViewModel() {

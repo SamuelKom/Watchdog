@@ -2,6 +2,7 @@ package at.ac.fhcampuswien.watchdog.screens
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.ExitToApp
 import androidx.compose.ui.graphics.vector.ImageVector
 
 
@@ -13,7 +14,7 @@ sealed class Screen (
     object ProfileSelection : Screen (
         route = "profileSelection",
         title = "Logout",
-        icon = Icons.Default.Person
+        icon = Icons.Outlined.ExitToApp
     )
 
     // Bottom Nav Bar
@@ -82,5 +83,5 @@ sealed class Screen (
 }
 
 fun getSideScreens(): List<Screen>{
-    return listOf(Screen.Account, Screen.Settings)
+    return listOf(Screen.Account/*, Screen.Settings*/)
 }

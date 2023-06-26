@@ -17,9 +17,10 @@ import at.ac.fhcampuswien.watchdog.viewmodels.*
 
 @Composable
 fun Navigation() {
-    var loggedIn by remember { mutableStateOf(false) }
     val sharedPrefs =
         LocalContext.current.getSharedPreferences("my_prefs", Context.MODE_PRIVATE)
+
+    var loggedIn by remember { mutableStateOf(sharedPrefs.getString("user", null) != null) }
 
     val login: (String) -> Unit = {user ->
         loggedIn = true

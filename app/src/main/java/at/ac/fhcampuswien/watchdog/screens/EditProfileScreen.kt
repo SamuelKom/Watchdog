@@ -1,28 +1,23 @@
 package at.ac.fhcampuswien.watchdog.screens
 
-import androidx.compose.foundation.*
 import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement.Absolute.Center
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -32,7 +27,6 @@ import androidx.navigation.NavHostController
 import at.ac.fhcampuswien.watchdog.models.User
 import at.ac.fhcampuswien.watchdog.viewmodels.ProfileViewModel
 import kotlinx.coroutines.launch
-import org.w3c.dom.Text
 
 @Composable
 fun EditProfileScreen(
@@ -48,7 +42,6 @@ fun EditProfileScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(30.dp)
     ) {
-    ){
 
         // Load user ID from system variable
         val sharedPrefs =
@@ -77,7 +70,6 @@ fun EditProfileScreen(
 
         NameRow(textFieldValue = textFieldValue,
             onChange = { newValue -> textFieldValue = newValue})
-            onChange = { newValue -> textFieldValue = newValue })
 
         ColorRow(selectedColor = selectedColor.value,
             onChange = { color -> selectedColor.value = color })
@@ -311,21 +303,15 @@ fun ButtonRow(
 
             IconButton(
                 onClick = {
-                    if (name.isNotEmpty() && color != null) {
+                    if (name.isNotEmpty() && color != null && favGenres.isNotEmpty()) {
+                        println(name)
                         coroutineScope.launch {
                             val user = User(
                                 name = name,
                                 color = color.toArgb(),
-                                favGenres = "",
+                                favGenres = favGenres.joinToString(prefix = "[", postfix = "]"),
                                 theme = "black"
                             )
-                    coroutineScope.launch {
-                        val user = User(
-                            name = name,
-                            color = color!!.toArgb(),
-                            favGenres = favGenres.toString(),
-                            theme = "black"
-                        )
 
                             if (userID == null) {
                                 profileViewModel.addUser(user)
@@ -337,7 +323,7 @@ fun ButtonRow(
                             }
                         }
                     }
-                          },
+                },
                 modifier = Modifier
                     .background(
                         color = Color.DarkGray,

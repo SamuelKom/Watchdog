@@ -74,14 +74,6 @@ fun SideBar(
     logout: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 32.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "Account", color = Color.White)
-    }
     LazyColumn(modifier = modifier) {
         items(items) { item ->
             Row(modifier = Modifier
@@ -108,6 +100,7 @@ fun SideBar(
                     logout()
                 }
             ) {
+                Icon(imageVector = Screen.ProfileSelection.icon, contentDescription = "Menu Icon", tint = Color.Red)
                 Spacer(modifier = Modifier.width(16.dp))
                 Text(text = "Logout", modifier = Modifier.weight(1f), color = Color.Red)
             }
